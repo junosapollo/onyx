@@ -4,9 +4,11 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.onyx.cashflow.data.AppDatabase
+import com.onyx.cashflow.data.Category
 import com.onyx.cashflow.data.CategoryTotal
 import com.onyx.cashflow.data.Transaction
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class DashboardViewModel(app: Application) : AndroidViewModel(app) {
@@ -17,6 +19,10 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
 
     private val _selectedMonth = MutableStateFlow(Calendar.getInstance())
     val selectedMonth: StateFlow<Calendar> = _selectedMonth.asStateFlow()
+
+    // Transaction being edited
+    private val _editingTransaction = MutableStateFlow<Transaction?>(null)
+    val editingTransaction: StateFlow<Transaction?> = _editingTransaction.asStateFlow()
 
     val monthStart: StateFlow<Long> = _selectedMonth.map { cal ->
         val c = cal.clone() as Calendar
@@ -71,6 +77,22 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
     fun nextMonth() {
         _selectedMonth.update { cal ->
             (cal.clone() as Calendar).apply { add(Calendar.MONTH, 1) }
+        }
+    }
+
+    fun startEditCategory(transaction: Transaction) {
+        _editingTransaction.value = transaction
+    }
+
+    fun dismissEditCategory() {
+        _editingTransaction.value = null
+    }
+
+    fun updateTransactionCategory(newCategoryId: Long) {
+        val transaction = _editingTransaction.value ?: return
+        viewModelScope.launch {
+            transactionDao.update(transaction.copy(categoryId = newCategoryId))
+            _editingTransaction.value = null
         }
     }
 

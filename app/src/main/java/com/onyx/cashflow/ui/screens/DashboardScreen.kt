@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -46,9 +47,20 @@ fun DashboardScreen(
     val totalIncome by viewModel.totalIncome.collectAsState()
     val recentTransactions by viewModel.recentTransactions.collectAsState()
     val categories by viewModel.categories.collectAsState()
+    val editingTransaction by viewModel.editingTransaction.collectAsState()
 
     val monthFormat = remember { SimpleDateFormat("MMMM yyyy", Locale.getDefault()) }
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("en", "IN")) }
+
+    // Category edit dialog
+    editingTransaction?.let { transaction ->
+        EditCategoryDialog(
+            currentCategoryId = transaction.categoryId,
+            categories = categories,
+            onDismiss = viewModel::dismissEditCategory,
+            onSelectCategory = viewModel::updateTransactionCategory
+        )
+    }
 
     Scaffold(
         floatingActionButton = {
@@ -220,7 +232,8 @@ fun DashboardScreen(
                 TransactionItem(
                     transaction = transaction,
                     category = category,
-                    currencyFormat = currencyFormat
+                    currencyFormat = currencyFormat,
+                    onClick = { viewModel.startEditCategory(transaction) }
                 )
             }
 
@@ -365,13 +378,16 @@ private fun CategoryLegendItem(
 private fun TransactionItem(
     transaction: Transaction,
     category: Category?,
-    currencyFormat: NumberFormat
+    currencyFormat: NumberFormat,
+    onClick: () -> Unit = {}
 ) {
     val dateFormat = remember { SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()) }
     val isExpense = transaction.type == TransactionType.EXPENSE
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -436,4 +452,67 @@ private fun TransactionItem(
             )
         }
     }
+}
+
+@Composable
+private fun EditCategoryDialog(
+    currentCategoryId: Long?,
+    categories: List<Category>,
+    onDismiss: () -> Unit,
+    onSelectCategory: (Long) -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Change Category") },
+        text = {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(categories, key = { it.id }) { category ->
+                    val isSelected = category.id == currentCategoryId
+                    val catColor = Color(category.color)
+
+                    Surface(
+                        onClick = { onSelectCategory(category.id) },
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isSelected) catColor.copy(alpha = 0.15f)
+                        else Color.Transparent
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .clip(CircleShape)
+                                    .background(catColor)
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                category.name,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isSelected) catColor else MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (isSelected) {
+                                Icon(
+                                    Icons.Default.Check,
+                                    contentDescription = "Selected",
+                                    tint = catColor,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }
