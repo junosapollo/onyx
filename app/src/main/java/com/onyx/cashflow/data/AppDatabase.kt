@@ -4,24 +4,55 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Transaction::class, Category::class],
-    version = 1,
+    entities = [
+        Transaction::class,
+        Category::class,
+        TrustedSender::class,
+        PendingTransaction::class
+    ],
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun transactionDao(): TransactionDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun trustedSenderDao(): TrustedSenderDao
+    abstract fun pendingTransactionDao(): PendingTransactionDao
 
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
+
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS trusted_senders (
+                        address TEXT NOT NULL PRIMARY KEY,
+                        label TEXT NOT NULL DEFAULT '',
+                        approvedAt INTEGER NOT NULL DEFAULT 0
+                    )
+                """)
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS pending_transactions (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        amount REAL NOT NULL,
+                        merchant TEXT NOT NULL DEFAULT '',
+                        senderAddress TEXT NOT NULL,
+                        rawSms TEXT NOT NULL,
+                        date INTEGER NOT NULL,
+                        type TEXT NOT NULL DEFAULT 'EXPENSE'
+                    )
+                """)
+            }
+        }
 
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -35,6 +66,7 @@ abstract class AppDatabase : RoomDatabase() {
                 AppDatabase::class.java,
                 "cashflow.db"
             )
+                .addMigrations(MIGRATION_1_2)
                 .addCallback(SeedCallback())
                 .build()
         }
