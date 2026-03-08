@@ -22,6 +22,57 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
         private val PHONE_NUMBER_PATTERN = Regex("""^\+?\d{7,15}$""")
 
         /**
+         * Verified core sender IDs for major Indian banks.
+         * The core ID is stable but the prefix/suffix change based on network
+         * routing (e.g., VM-BOBSMS-S, JK-BOBSMS-S, JX-BOBSMS-S).
+         * We match these as substrings (case-insensitive) to handle all variants.
+         */
+        private val VERIFIED_BANK_CORE_IDS = setOf(
+            // HDFC Bank
+            "HDFCBK", "HDFCBN",
+            // ICICI Bank
+            "ICICIB",
+            // Axis Bank
+            "AXISBK",
+            // Kotak Mahindra Bank
+            "KOTAKB",
+            // IDFC First Bank
+            "IDFCFB",
+            // IndusInd Bank
+            "INDUSI",
+            // Yes Bank
+            "YESBNK",
+            // RBL Bank
+            "RBLBNK",
+            // South Indian Bank
+            "SIBBNK",
+            // State Bank of India (SBI)
+            "SBIINB", "SBIPSG", "SBICRD", "SBIBNK", "SBYONO", "ATMSBI",
+            // Bank of Baroda (BoB)
+            "BOBTXN", "BOBMSG", "BOBSMS",
+            // Punjab National Bank (PNB)
+            "PNBMSG", "PNBSMS",
+            // Canara Bank
+            "CANBNK",
+            // Union Bank of India
+            "UBININ",
+            // Bank of India (BoI)
+            "BOIIND", "BOISMS",
+            // Central Bank of India
+            "CBISMS", "CBIBNK",
+            // Indian Bank
+            "INDBNK",
+            // Standard Chartered
+            "SCBLIN",
+            // Citi Bank
+            "CITIBK",
+            // HSBC India
+            "HSBCIN",
+            // American Express
+            "AMEXIN"
+        )
+
+        /**
          * Returns true if the sender looks like a service/bank shortcode (alphanumeric).
          * Returns false for regular phone numbers (all digits).
          */
@@ -32,6 +83,15 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
             if (PHONE_NUMBER_PATTERN.matches(cleaned)) return false
             // Must contain at least one letter to be an alphanumeric service ID
             return cleaned.any { it.isLetter() }
+        }
+
+        /**
+         * Returns true if the sender address contains any verified bank core ID.
+         * Handles prefix/suffix variations like VM-BOBSMS-S, JK-HDFCBK, etc.
+         */
+        fun containsVerifiedBankId(address: String): Boolean {
+            val upper = address.uppercase()
+            return VERIFIED_BANK_CORE_IDS.any { coreId -> upper.contains(coreId) }
         }
     }
 
@@ -56,7 +116,9 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
             val db = AppDatabase.getInstance(context)
 
             CoroutineScope(Dispatchers.IO).launch {
-                val isTrusted = db.trustedSenderDao().isTrusted(sender)
+                // Check verified bank ID list first, then fall back to user-approved senders
+                val isTrusted = containsVerifiedBankId(sender)
+                        || db.trustedSenderDao().isTrusted(sender)
 
                 if (isTrusted) {
                     // Auto-log: find "Other" category by name
