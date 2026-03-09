@@ -39,10 +39,12 @@ public final class AppDatabase_Impl extends AppDatabase {
 
   private volatile BalanceGapDao _balanceGapDao;
 
+  private volatile MerchantCategoryRuleDao _merchantCategoryRuleDao;
+
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(3) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(4) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `categoryId` INTEGER, `note` TEXT NOT NULL, `date` INTEGER NOT NULL, `type` TEXT NOT NULL, FOREIGN KEY(`categoryId`) REFERENCES `categories`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )");
@@ -54,8 +56,9 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `pending_transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `merchant` TEXT NOT NULL, `senderAddress` TEXT NOT NULL, `rawSms` TEXT NOT NULL, `date` INTEGER NOT NULL, `type` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `account_balances` (`accountId` TEXT NOT NULL, `lastBalance` REAL NOT NULL, `lastTransactionDate` INTEGER NOT NULL, `bankSender` TEXT NOT NULL, PRIMARY KEY(`accountId`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `balance_gaps` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `expectedBalance` REAL NOT NULL, `actualBalance` REAL NOT NULL, `gapAmount` REAL NOT NULL, `gapType` TEXT NOT NULL, `detectedAt` INTEGER NOT NULL, `resolved` INTEGER NOT NULL)");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `merchant_category_rules` (`merchant` TEXT NOT NULL, `categoryId` INTEGER NOT NULL, PRIMARY KEY(`merchant`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bc111e424e460b7a25150633fce6c54c')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fe2704cc0584c06af4def7e22b5dc184')");
       }
 
       @Override
@@ -66,6 +69,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("DROP TABLE IF EXISTS `pending_transactions`");
         db.execSQL("DROP TABLE IF EXISTS `account_balances`");
         db.execSQL("DROP TABLE IF EXISTS `balance_gaps`");
+        db.execSQL("DROP TABLE IF EXISTS `merchant_category_rules`");
         final List<? extends RoomDatabase.Callback> _callbacks = mCallbacks;
         if (_callbacks != null) {
           for (RoomDatabase.Callback _callback : _callbacks) {
@@ -206,9 +210,21 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoBalanceGaps + "\n"
                   + " Found:\n" + _existingBalanceGaps);
         }
+        final HashMap<String, TableInfo.Column> _columnsMerchantCategoryRules = new HashMap<String, TableInfo.Column>(2);
+        _columnsMerchantCategoryRules.put("merchant", new TableInfo.Column("merchant", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMerchantCategoryRules.put("categoryId", new TableInfo.Column("categoryId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashSet<TableInfo.ForeignKey> _foreignKeysMerchantCategoryRules = new HashSet<TableInfo.ForeignKey>(0);
+        final HashSet<TableInfo.Index> _indicesMerchantCategoryRules = new HashSet<TableInfo.Index>(0);
+        final TableInfo _infoMerchantCategoryRules = new TableInfo("merchant_category_rules", _columnsMerchantCategoryRules, _foreignKeysMerchantCategoryRules, _indicesMerchantCategoryRules);
+        final TableInfo _existingMerchantCategoryRules = TableInfo.read(db, "merchant_category_rules");
+        if (!_infoMerchantCategoryRules.equals(_existingMerchantCategoryRules)) {
+          return new RoomOpenHelper.ValidationResult(false, "merchant_category_rules(com.onyx.cashflow.data.MerchantCategoryRule).\n"
+                  + " Expected:\n" + _infoMerchantCategoryRules + "\n"
+                  + " Found:\n" + _existingMerchantCategoryRules);
+        }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "bc111e424e460b7a25150633fce6c54c", "13c2181c4c9f00ef07ef141430653559");
+    }, "fe2704cc0584c06af4def7e22b5dc184", "2e380bd6e07c7a3e8fecc979acc416b6");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;
@@ -219,7 +235,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   protected InvalidationTracker createInvalidationTracker() {
     final HashMap<String, String> _shadowTablesMap = new HashMap<String, String>(0);
     final HashMap<String, Set<String>> _viewTables = new HashMap<String, Set<String>>(0);
-    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "transactions","categories","trusted_senders","pending_transactions","account_balances","balance_gaps");
+    return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "transactions","categories","trusted_senders","pending_transactions","account_balances","balance_gaps","merchant_category_rules");
   }
 
   @Override
@@ -241,6 +257,7 @@ public final class AppDatabase_Impl extends AppDatabase {
       _db.execSQL("DELETE FROM `pending_transactions`");
       _db.execSQL("DELETE FROM `account_balances`");
       _db.execSQL("DELETE FROM `balance_gaps`");
+      _db.execSQL("DELETE FROM `merchant_category_rules`");
       super.setTransactionSuccessful();
     } finally {
       super.endTransaction();
@@ -264,6 +281,7 @@ public final class AppDatabase_Impl extends AppDatabase {
     _typeConvertersMap.put(PendingTransactionDao.class, PendingTransactionDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(AccountBalanceDao.class, AccountBalanceDao_Impl.getRequiredConverters());
     _typeConvertersMap.put(BalanceGapDao.class, BalanceGapDao_Impl.getRequiredConverters());
+    _typeConvertersMap.put(MerchantCategoryRuleDao.class, MerchantCategoryRuleDao_Impl.getRequiredConverters());
     return _typeConvertersMap;
   }
 
@@ -362,6 +380,20 @@ public final class AppDatabase_Impl extends AppDatabase {
           _balanceGapDao = new BalanceGapDao_Impl(this);
         }
         return _balanceGapDao;
+      }
+    }
+  }
+
+  @Override
+  public MerchantCategoryRuleDao merchantCategoryRuleDao() {
+    if (_merchantCategoryRuleDao != null) {
+      return _merchantCategoryRuleDao;
+    } else {
+      synchronized(this) {
+        if(_merchantCategoryRuleDao == null) {
+          _merchantCategoryRuleDao = new MerchantCategoryRuleDao_Impl(this);
+        }
+        return _merchantCategoryRuleDao;
       }
     }
   }

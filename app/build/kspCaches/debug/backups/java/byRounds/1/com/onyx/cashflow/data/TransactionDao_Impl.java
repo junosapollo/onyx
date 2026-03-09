@@ -8,6 +8,7 @@ import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.SharedSQLiteStatement;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
@@ -39,6 +40,8 @@ public final class TransactionDao_Impl implements TransactionDao {
   private final EntityDeletionOrUpdateAdapter<Transaction> __deletionAdapterOfTransaction;
 
   private final EntityDeletionOrUpdateAdapter<Transaction> __updateAdapterOfTransaction;
+
+  private final SharedSQLiteStatement __preparedStmtOfUpdateCategoryByMerchant;
 
   public TransactionDao_Impl(@NonNull final RoomDatabase __db) {
     this.__db = __db;
@@ -100,6 +103,14 @@ public final class TransactionDao_Impl implements TransactionDao {
         statement.bindLong(7, entity.getId());
       }
     };
+    this.__preparedStmtOfUpdateCategoryByMerchant = new SharedSQLiteStatement(__db) {
+      @Override
+      @NonNull
+      public String createQuery() {
+        final String _query = "UPDATE transactions SET categoryId = ? WHERE note = ?";
+        return _query;
+      }
+    };
   }
 
   @Override
@@ -154,6 +165,34 @@ public final class TransactionDao_Impl implements TransactionDao {
           return Unit.INSTANCE;
         } finally {
           __db.endTransaction();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object updateCategoryByMerchant(final String merchant, final long categoryId,
+      final Continuation<? super Unit> $completion) {
+    return CoroutinesRoom.execute(__db, true, new Callable<Unit>() {
+      @Override
+      @NonNull
+      public Unit call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfUpdateCategoryByMerchant.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, categoryId);
+        _argIndex = 2;
+        _stmt.bindString(_argIndex, merchant);
+        try {
+          __db.beginTransaction();
+          try {
+            _stmt.executeUpdateDelete();
+            __db.setTransactionSuccessful();
+            return Unit.INSTANCE;
+          } finally {
+            __db.endTransaction();
+          }
+        } finally {
+          __preparedStmtOfUpdateCategoryByMerchant.release(_stmt);
         }
       }
     }, $completion);
