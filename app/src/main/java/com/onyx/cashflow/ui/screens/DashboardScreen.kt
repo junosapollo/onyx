@@ -26,10 +26,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.onyx.cashflow.data.BalanceGap
 import com.onyx.cashflow.data.Category
 import com.onyx.cashflow.data.CategoryTotal
 import com.onyx.cashflow.data.Transaction
 import com.onyx.cashflow.data.TransactionType
+import com.onyx.cashflow.viewmodel.BalanceGapViewModel
 import com.onyx.cashflow.viewmodel.DashboardViewModel
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -39,6 +41,7 @@ import java.util.*
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
+    balanceGapViewModel: BalanceGapViewModel,
     onAddTransaction: () -> Unit
 ) {
     val selectedMonth by viewModel.selectedMonth.collectAsState()
@@ -48,6 +51,10 @@ fun DashboardScreen(
     val recentTransactions by viewModel.recentTransactions.collectAsState()
     val categories by viewModel.categories.collectAsState()
     val editingTransaction by viewModel.editingTransaction.collectAsState()
+    val unresolvedGaps by balanceGapViewModel.unresolvedGaps.collectAsState()
+
+    // State for the resolve-gap dialog
+    var resolvingGap by remember { mutableStateOf<BalanceGap?>(null) }
 
     val monthFormat = remember { SimpleDateFormat("MMMM yyyy", Locale.getDefault()) }
     val currencyFormat = remember { NumberFormat.getCurrencyInstance(Locale("en", "IN")) }
@@ -59,6 +66,20 @@ fun DashboardScreen(
             categories = categories,
             onDismiss = viewModel::dismissEditCategory,
             onSelectCategory = viewModel::updateTransactionCategory
+        )
+    }
+
+    // Resolve gap dialog
+    resolvingGap?.let { gap ->
+        ResolveGapDialog(
+            gap = gap,
+            categories = categories,
+            currencyFormat = currencyFormat,
+            onDismiss = { resolvingGap = null },
+            onResolve = { categoryId, note ->
+                balanceGapViewModel.resolveWithTransaction(gap, categoryId, note)
+                resolvingGap = null
+            }
         )
     }
 
@@ -140,6 +161,26 @@ fun DashboardScreen(
                             else MaterialTheme.colorScheme.error
                         )
                     }
+                }
+            }
+
+            // Balance gap alerts
+            if (unresolvedGaps.isNotEmpty()) {
+                item {
+                    Text(
+                        "⚠\uFE0F Balance Alerts",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                items(unresolvedGaps, key = { it.id }) { gap ->
+                    BalanceGapCard(
+                        gap = gap,
+                        currencyFormat = currencyFormat,
+                        onAddTransaction = { resolvingGap = gap },
+                        onDismiss = { balanceGapViewModel.dismissGap(gap.id) }
+                    )
                 }
             }
 
@@ -512,6 +553,189 @@ private fun EditCategoryDialog(
             }
         },
         confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
+}
+
+@Composable
+private fun BalanceGapCard(
+    gap: BalanceGap,
+    currencyFormat: NumberFormat,
+    onAddTransaction: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val dateFormat = remember { SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()) }
+    val isExpense = gap.gapType == TransactionType.EXPENSE
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.6f)
+        )
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = "Gap alert",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        if (isExpense) "Missed Expense" else "Missed Income",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                    Text(
+                        "A/c ••••${gap.accountId}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f)
+                    )
+                }
+                Text(
+                    "${if (isExpense) "-" else "+"}${currencyFormat.format(gap.gapAmount)}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            Spacer(Modifier.height(4.dp))
+
+            Text(
+                "Detected ${dateFormat.format(Date(gap.detectedAt))}",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.5f)
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = onDismiss) {
+                    Text("Dismiss", color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f))
+                }
+                Spacer(Modifier.width(8.dp))
+                Button(
+                    onClick = onAddTransaction,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Add Transaction")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ResolveGapDialog(
+    gap: BalanceGap,
+    categories: List<Category>,
+    currencyFormat: NumberFormat,
+    onDismiss: () -> Unit,
+    onResolve: (categoryId: Long?, note: String) -> Unit
+) {
+    var selectedCategoryId by remember { mutableStateOf<Long?>(null) }
+    var note by remember { mutableStateOf("") }
+    val isExpense = gap.gapType == TransactionType.EXPENSE
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Column {
+                Text(if (isExpense) "Add Missed Expense" else "Add Missed Income")
+                Text(
+                    currencyFormat.format(gap.gapAmount),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isExpense) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.secondary
+                )
+            }
+        },
+        text = {
+            Column {
+                Text(
+                    "Category",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(8.dp))
+                LazyColumn(
+                    modifier = Modifier.heightIn(max = 200.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(categories, key = { it.id }) { category ->
+                        val isSelected = category.id == selectedCategoryId
+                        val catColor = Color(category.color)
+
+                        Surface(
+                            onClick = { selectedCategoryId = category.id },
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (isSelected) catColor.copy(alpha = 0.15f)
+                            else Color.Transparent
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(12.dp)
+                                        .clip(CircleShape)
+                                        .background(catColor)
+                                )
+                                Spacer(Modifier.width(12.dp))
+                                Text(
+                                    category.name,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isSelected) catColor else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = note,
+                    onValueChange = { note = it },
+                    label = { Text("Note (optional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onResolve(selectedCategoryId, note) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isExpense) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.secondary
+                )
+            ) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
             TextButton(onClick = onDismiss) { Text("Cancel") }
         }
     )

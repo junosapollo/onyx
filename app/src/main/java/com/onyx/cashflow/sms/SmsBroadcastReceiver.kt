@@ -136,6 +136,9 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
                             type = parsed.type
                         )
                     )
+
+                    // Check for balance gaps (missed transactions)
+                    BalanceGapDetector.checkForGap(parsed, sender, db)
                 } else {
                     // Unknown sender → pending queue
                     db.pendingTransactionDao().insert(

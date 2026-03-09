@@ -34,6 +34,7 @@ import com.onyx.cashflow.ui.screens.PendingScreen
 import com.onyx.cashflow.ui.theme.CashFlowTheme
 import com.onyx.cashflow.viewmodel.CategoryViewModel
 import com.onyx.cashflow.viewmodel.DashboardViewModel
+import com.onyx.cashflow.viewmodel.BalanceGapViewModel
 import com.onyx.cashflow.viewmodel.PendingViewModel
 import com.onyx.cashflow.viewmodel.TransactionViewModel
 
@@ -85,6 +86,7 @@ fun CashFlowApp() {
     val transactionViewModel: TransactionViewModel = viewModel()
     val categoryViewModel: CategoryViewModel = viewModel()
     val pendingViewModel: PendingViewModel = viewModel()
+    val balanceGapViewModel: BalanceGapViewModel = viewModel()
 
     val pendingCount by pendingViewModel.pendingCount.collectAsState()
 
@@ -157,6 +159,7 @@ fun CashFlowApp() {
             composable(Screen.Dashboard.route) {
                 DashboardScreen(
                     viewModel = dashboardViewModel,
+                    balanceGapViewModel = balanceGapViewModel,
                     onAddTransaction = {
                         transactionViewModel.resetForm()
                         navController.navigate(Screen.AddTransaction.route)
