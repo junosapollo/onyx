@@ -88,10 +88,30 @@ class DashboardViewModel(app: Application) : AndroidViewModel(app) {
         _editingTransaction.value = null
     }
 
-    fun updateTransactionCategory(newCategoryId: Long) {
+    fun updateTransactionCategory(
+        newCategoryId: Long,
+        applyToFuture: Boolean = false,
+        applyToPast: Boolean = false
+    ) {
         val transaction = _editingTransaction.value ?: return
+        val merchant = transaction.note.trim()
+        
         viewModelScope.launch {
+            // Update this specific transaction
             transactionDao.update(transaction.copy(categoryId = newCategoryId))
+
+            // Save merchant rule if requested
+            if (applyToFuture && merchant.isNotEmpty()) {
+                db.merchantCategoryRuleDao().insertRule(
+                    com.onyx.cashflow.data.MerchantCategoryRule(merchant, newCategoryId)
+                )
+            }
+
+            // Update past transactions if requested
+            if (applyToPast && merchant.isNotEmpty()) {
+                transactionDao.updateCategoryByMerchant(merchant, newCategoryId)
+            }
+
             _editingTransaction.value = null
         }
     }

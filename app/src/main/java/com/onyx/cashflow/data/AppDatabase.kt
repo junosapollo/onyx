@@ -17,9 +17,10 @@ import kotlinx.coroutines.launch
         TrustedSender::class,
         PendingTransaction::class,
         AccountBalance::class,
-        BalanceGap::class
+        BalanceGap::class,
+        MerchantCategoryRule::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -30,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun pendingTransactionDao(): PendingTransactionDao
     abstract fun accountBalanceDao(): AccountBalanceDao
     abstract fun balanceGapDao(): BalanceGapDao
+    abstract fun merchantCategoryRuleDao(): MerchantCategoryRuleDao
 
     companion object {
         @Volatile
@@ -83,6 +85,17 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS merchant_category_rules (
+                        merchant TEXT NOT NULL PRIMARY KEY,
+                        categoryId INTEGER NOT NULL
+                    )
+                """)
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: buildDatabase(context).also { INSTANCE = it }
@@ -95,7 +108,7 @@ abstract class AppDatabase : RoomDatabase() {
                 AppDatabase::class.java,
                 "cashflow.db"
             )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .fallbackToDestructiveMigration()
                 .fallbackToDestructiveMigrationOnDowngrade()
                 .addCallback(SeedCallback())

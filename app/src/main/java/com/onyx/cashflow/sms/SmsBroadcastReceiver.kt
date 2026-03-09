@@ -121,16 +121,21 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
                         || db.trustedSenderDao().isTrusted(sender)
 
                 if (isTrusted) {
-                    // Auto-log: find "Other" category by name
-                    val cats = db.categoryDao().getAll().first()
-                    val otherCategoryId = cats.find {
-                        it.name.equals("Other", ignoreCase = true)
-                    }?.id
+                    // Check for existing merchant category rule
+                    val rule = db.merchantCategoryRuleDao().getRuleForMerchant(parsed.merchant.trim())
+                    
+                    val categoryIdToAssign = if (rule != null) {
+                        rule.categoryId
+                    } else {
+                        // Fallback to "Other" category
+                        val cats = db.categoryDao().getAll().first()
+                        cats.find { it.name.equals("Other", ignoreCase = true) }?.id
+                    }
 
                     db.transactionDao().insert(
                         Transaction(
                             amount = parsed.amount,
-                            categoryId = otherCategoryId,
+                            categoryId = categoryIdToAssign,
                             note = parsed.merchant,
                             date = System.currentTimeMillis(),
                             type = parsed.type

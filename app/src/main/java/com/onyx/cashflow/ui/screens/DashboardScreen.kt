@@ -555,8 +555,12 @@ private fun EditCategoryDialog(
     currentCategoryId: Long?,
     categories: List<Category>,
     onDismiss: () -> Unit,
-    onSelectCategory: (Long) -> Unit
+    onSelectCategory: (categoryId: Long, applyToFuture: Boolean, applyToPast: Boolean) -> Unit
 ) {
+    var selectedId by remember { mutableStateOf(currentCategoryId) }
+    var applyToFuture by remember { mutableStateOf(false) }
+    var applyToPast by remember { mutableStateOf(false) }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -566,56 +570,91 @@ private fun EditCategoryDialog(
             )
         },
         text = {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                items(categories, key = { it.id }) { category ->
-                    val isSelected = category.id == currentCategoryId
-                    val catColor = Color(category.color)
+            Column {
+                LazyColumn(
+                    modifier = Modifier.weight(1f, fill = false),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(categories, key = { it.id }) { category ->
+                        val isSelected = category.id == selectedId
+                        val catColor = Color(category.color)
 
-                    Surface(
-                        onClick = { onSelectCategory(category.id) },
-                        shape = RoundedCornerShape(8.dp),
-                        color = if (isSelected) catColor.copy(alpha = 0.15f)
-                        else Color.Transparent
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        Surface(
+                            onClick = { selectedId = category.id },
+                            shape = RoundedCornerShape(8.dp),
+                            color = if (isSelected) catColor.copy(alpha = 0.15f)
+                            else Color.Transparent
                         ) {
-                            Box(
+                            Row(
                                 modifier = Modifier
-                                    .size(16.dp)
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(catColor)
-                            )
-                            Spacer(Modifier.width(12.dp))
-                            Text(
-                                category.name,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) catColor else MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f),
-                                letterSpacing = 0.5.sp
-                            )
-                            if (isSelected) {
-                                Icon(
-                                    Icons.Default.Check,
-                                    contentDescription = "Selected",
-                                    tint = catColor,
-                                    modifier = Modifier.size(20.dp)
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(catColor)
                                 )
+                                Spacer(Modifier.width(12.dp))
+                                Text(
+                                    category.name,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isSelected) catColor else MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f),
+                                    letterSpacing = 0.5.sp
+                                )
+                                if (isSelected) {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = "Selected",
+                                        tint = catColor,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             }
                         }
                     }
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().clickable { applyToFuture = !applyToFuture }
+                ) {
+                    Checkbox(checked = applyToFuture, onCheckedChange = { applyToFuture = it })
+                    Text("Always apply to future transactions", style = MaterialTheme.typography.bodySmall)
+                }
+                
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth().clickable { applyToPast = !applyToPast }
+                ) {
+                    Checkbox(checked = applyToPast, onCheckedChange = { applyToPast = it })
+                    Text("Apply to past transactions", style = MaterialTheme.typography.bodySmall)
                 }
             }
         },
         shape = RoundedCornerShape(16.dp),
         containerColor = MaterialTheme.colorScheme.surface,
         confirmButton = {
+            TextButton(
+                onClick = {
+                    selectedId?.let { id ->
+                        onSelectCategory(id, applyToFuture, applyToPast)
+                    }
+                },
+                enabled = selectedId != null
+            ) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("Cancel")
             }
