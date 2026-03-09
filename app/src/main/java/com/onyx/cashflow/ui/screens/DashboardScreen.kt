@@ -284,7 +284,7 @@ fun DashboardScreen(
                                 )
                             }
                             Text(
-                                "zero Transactions",
+                                "no transactions",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 letterSpacing = 1.sp

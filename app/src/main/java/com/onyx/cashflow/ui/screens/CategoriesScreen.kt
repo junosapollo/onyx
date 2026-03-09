@@ -77,6 +77,13 @@ fun CategoriesScreen(viewModel: CategoryViewModel) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         letterSpacing = 2.sp
                     )
+                    Spacer(Modifier.height(24.dp))
+                    OutlinedButton(
+                        onClick = viewModel::restoreDefaults,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text("RESTORE DEFAULTS", letterSpacing = 1.sp)
+                    }
                 }
             }
         } else {
