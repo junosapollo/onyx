@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.onyx.cashflow.app-mergeDebugResources-56:/values-bn/values-bn.xml",
+            "outputFile": "com.onyx.cashflow.app-mergeDebugResources-57:/values-bn/values-bn.xml",
             "map": [
                 {
                     "source": "/home/mxnxsh/.gradle/caches/8.11.1/transforms/6e45af6724f960868ecdae267f98bb2f/transformed/ui-release/res/values-bn/values-bn.xml",
