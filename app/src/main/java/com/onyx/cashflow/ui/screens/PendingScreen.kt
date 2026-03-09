@@ -1,10 +1,10 @@
 package com.onyx.cashflow.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.onyx.cashflow.data.PendingTransaction
 import com.onyx.cashflow.data.TransactionType
 import com.onyx.cashflow.data.TrustedSender
@@ -39,7 +40,13 @@ fun PendingScreen(viewModel: PendingViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Pending SMS") },
+                title = {
+                    Text(
+                        "PENDING SMS",
+                        letterSpacing = 2.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 actions = {
                     if (trustedSenders.isNotEmpty()) {
                         IconButton(onClick = { showTrustedSenders = !showTrustedSenders }) {
@@ -50,25 +57,31 @@ fun PendingScreen(viewModel: PendingViewModel) {
                             )
                         }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
             )
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Trusted senders section (collapsible)
             if (showTrustedSenders && trustedSenders.isNotEmpty()) {
                 item {
                     Text(
-                        "Trusted Senders",
+                        "TRUSTED SENDERS",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 4.dp)
+                        modifier = Modifier.padding(bottom = 4.dp),
+                        letterSpacing = 2.sp
                     )
                 }
                 items(trustedSenders, key = { it.address }) { sender ->
@@ -77,7 +90,12 @@ fun PendingScreen(viewModel: PendingViewModel) {
                         onRemove = { viewModel.removeTrustedSender(sender) }
                     )
                 }
-                item { HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp)) }
+                item {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
             }
 
             // Pending transactions
@@ -98,9 +116,10 @@ fun PendingScreen(viewModel: PendingViewModel) {
                             )
                             Spacer(Modifier.height(12.dp))
                             Text(
-                                "No pending transactions",
+                                "NO PENDING TRANSACTIONS",
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                letterSpacing = 2.sp
                             )
                             Spacer(Modifier.height(4.dp))
                             Text(
@@ -114,9 +133,10 @@ fun PendingScreen(viewModel: PendingViewModel) {
             } else {
                 item {
                     Text(
-                        "${pendingList.size} pending",
+                        "${pendingList.size} PENDING",
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        letterSpacing = 2.sp
                     )
                 }
 
@@ -145,27 +165,28 @@ private fun PendingTransactionItem(
     val isExpense = pending.type == TransactionType.EXPENSE
     var expanded by remember { mutableStateOf(false) }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column {
             // Header row
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Icon
+                // Icon — rounded square
                 Box(
                     modifier = Modifier
                         .size(40.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(8.dp))
                         .background(
-                            if (isExpense) MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
-                            else MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
+                            if (isExpense) MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
+                            else MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -182,16 +203,18 @@ private fun PendingTransactionItem(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        pending.merchant,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium,
+                        pending.merchant.uppercase(),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        letterSpacing = 0.5.sp
                     )
                     Text(
-                        "from: ${pending.senderAddress}",
+                        "FROM: ${pending.senderAddress}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        letterSpacing = 0.5.sp
                     )
                 }
 
@@ -208,7 +231,7 @@ private fun PendingTransactionItem(
 
             // Date
             Text(
-                dateFormat.format(Date(pending.date)),
+                dateFormat.format(Date(pending.date)).uppercase(),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )
@@ -219,8 +242,9 @@ private fun PendingTransactionItem(
                 contentPadding = PaddingValues(0.dp)
             ) {
                 Text(
-                    if (expanded) "Hide SMS" else "Show SMS",
-                    style = MaterialTheme.typography.labelSmall
+                    if (expanded) "HIDE SMS" else "SHOW SMS",
+                    style = MaterialTheme.typography.labelSmall,
+                    letterSpacing = 1.sp
                 )
             }
 
@@ -228,11 +252,11 @@ private fun PendingTransactionItem(
                 Text(
                     pending.rawSms,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
+                        .border(1.dp, MaterialTheme.colorScheme.outline)
+                        .background(MaterialTheme.colorScheme.background)
                         .padding(8.dp)
                 )
             }
@@ -250,11 +274,14 @@ private fun PendingTransactionItem(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp, MaterialTheme.colorScheme.outline
                     )
                 ) {
                     Icon(Icons.Default.Close, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Dismiss")
+                    Text("DISMISS", letterSpacing = 1.sp, fontSize = 12.sp)
                 }
 
                 Button(
@@ -262,12 +289,14 @@ private fun PendingTransactionItem(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(0.dp, 0.dp, 0.dp, 0.dp, 0.dp)
                 ) {
                     Icon(Icons.Default.VerifiedUser, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Trust Sender")
+                    Text("TRUST", letterSpacing = 1.sp, fontSize = 12.sp)
                 }
             }
         }
@@ -279,24 +308,23 @@ private fun TrustedSenderItem(
     sender: TrustedSender,
     onRemove: () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
-        )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.05f))
+            .padding(12.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
                     .size(32.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(

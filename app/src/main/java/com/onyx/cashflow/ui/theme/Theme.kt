@@ -1,84 +1,65 @@
 package com.onyx.cashflow.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
-// Finance-oriented teal/green palette
-private val Teal200 = Color(0xFF80CBC4)
-private val Teal500 = Color(0xFF009688)
-private val Teal700 = Color(0xFF00796B)
-private val Green400 = Color(0xFF66BB6A)
-private val DarkSurface = Color(0xFF121212)
-private val DarkSurfaceVariant = Color(0xFF1E1E2E)
-private val DarkCard = Color(0xFF252537)
+// ── Rounded Dark Gray Palette ────────────────────────────────────────────────
+private val Background   = Color(0xFF0D0D0D) // Very dark gray, almost black
+private val Surface      = Color(0xFF1A1A1A) // Slightly lighter for cards
+private val SurfaceVar   = Color(0xFF222222) // Lighter still for nested elements
+private val PrimaryGreen = Color(0xFF81C784) // Soft mint green accent
+private val TextWhite    = Color(0xFFF5F5F5)
+private val TextGray     = Color(0xFFAAAAAA)
+private val OutlineColor = Color(0xFF333333)
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Teal200,
-    onPrimary = Color(0xFF003731),
-    primaryContainer = Teal700,
-    onPrimaryContainer = Color(0xFFA7F3EC),
-    secondary = Green400,
-    onSecondary = Color(0xFF00391C),
-    secondaryContainer = Color(0xFF005229),
-    onSecondaryContainer = Color(0xFF78DC77),
-    tertiary = Color(0xFFFFB74D),
-    onTertiary = Color(0xFF462B00),
-    background = DarkSurface,
-    onBackground = Color(0xFFE6E1E5),
-    surface = DarkSurfaceVariant,
-    onSurface = Color(0xFFE6E1E5),
-    surfaceVariant = DarkCard,
-    onSurfaceVariant = Color(0xFFCAC4D0),
-    error = Color(0xFFEF5350),
-    onError = Color.White,
-    outline = Color(0xFF49454F),
+private val ErrorRed     = Color(0xFFE57373)
+private val Secondary    = Color(0xFF64B5F6) // Soft blue
+
+private val RoundedDarkColorScheme = darkColorScheme(
+    primary             = PrimaryGreen,
+    onPrimary           = Background,
+    primaryContainer    = Color(0xFF1B5E20),
+    onPrimaryContainer  = PrimaryGreen,
+    secondary           = Secondary,
+    onSecondary         = Background,
+    secondaryContainer  = Color(0xFF0D47A1),
+    onSecondaryContainer= Secondary,
+    background          = Background,
+    onBackground        = TextWhite,
+    surface             = Surface,
+    onSurface           = TextWhite,
+    surfaceVariant      = SurfaceVar,
+    onSurfaceVariant    = TextGray,
+    error               = ErrorRed,
+    onError             = Background,
+    errorContainer      = Color(0xFFB71C1C),
+    onErrorContainer    = ErrorRed,
+    outline             = OutlineColor,
+    outlineVariant      = Color(0xFF3A3A3A),
+    inverseSurface      = TextWhite,
+    inverseOnSurface    = Background,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Teal500,
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFB2DFDB),
-    onPrimaryContainer = Color(0xFF002019),
-    secondary = Color(0xFF4CAF50),
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFC8E6C9),
-    onSecondaryContainer = Color(0xFF002106),
-    tertiary = Color(0xFFFF9800),
-    onTertiary = Color.White,
-    background = Color(0xFFF8F9FA),
-    onBackground = Color(0xFF1C1B1F),
-    surface = Color.White,
-    onSurface = Color(0xFF1C1B1F),
-    surfaceVariant = Color(0xFFF0F0F5),
-    onSurfaceVariant = Color(0xFF49454F),
-    error = Color(0xFFB3261E),
-    onError = Color.White,
-    outline = Color(0xFF79747E),
+// ── Rounded Geometry ─────────────────────────────────────────────────────────
+private val RoundedShapes = Shapes(
+    extraSmall = RoundedCornerShape(4.dp),
+    small      = RoundedCornerShape(8.dp),
+    medium     = RoundedCornerShape(12.dp),
+    large      = RoundedCornerShape(16.dp),
+    extraLarge = RoundedCornerShape(24.dp),
 )
 
 @Composable
 fun CashFlowTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context)
-            else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography(),
+        colorScheme = RoundedDarkColorScheme,
+        typography = AppTypography,
+        shapes = RoundedShapes,
         content = content
     )
 }

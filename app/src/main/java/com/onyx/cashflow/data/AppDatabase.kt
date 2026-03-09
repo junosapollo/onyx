@@ -96,6 +96,8 @@ abstract class AppDatabase : RoomDatabase() {
                 "cashflow.db"
             )
                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigrationOnDowngrade()
                 .addCallback(SeedCallback())
                 .build()
         }

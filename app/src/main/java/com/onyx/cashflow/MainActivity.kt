@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
@@ -19,6 +21,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -91,9 +97,9 @@ fun CashFlowApp() {
     val pendingCount by pendingViewModel.pendingCount.collectAsState()
 
     val navItems = listOf(
-        BottomNavItem(Screen.Dashboard, "Dashboard", Icons.Filled.Dashboard, Icons.Outlined.Dashboard),
-        BottomNavItem(Screen.Pending, "Pending", Icons.Filled.Sms, Icons.Outlined.Sms),
-        BottomNavItem(Screen.Categories, "Categories", Icons.Filled.Category, Icons.Outlined.Category)
+        BottomNavItem(Screen.Dashboard, "DASH", Icons.Filled.Dashboard, Icons.Outlined.Dashboard),
+        BottomNavItem(Screen.Pending, "PENDING", Icons.Filled.Sms, Icons.Outlined.Sms),
+        BottomNavItem(Screen.Categories, "CATEGORIES", Icons.Filled.Category, Icons.Outlined.Category)
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -108,7 +114,10 @@ fun CashFlowApp() {
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
-                NavigationBar {
+                NavigationBar(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    tonalElevation = 0.dp
+                ) {
                     navItems.forEach { item ->
                         val selected = currentDestination?.hierarchy?.any {
                             it.route == item.screen.route
@@ -119,7 +128,16 @@ fun CashFlowApp() {
                                 if (item.screen == Screen.Pending && pendingCount > 0) {
                                     BadgedBox(
                                         badge = {
-                                            Badge { Text("$pendingCount") }
+                                            Badge(
+                                                containerColor = MaterialTheme.colorScheme.error,
+                                                contentColor = MaterialTheme.colorScheme.onError
+                                            ) {
+                                                Text(
+                                                    "$pendingCount",
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            }
                                         }
                                     ) {
                                         Icon(
@@ -134,8 +152,24 @@ fun CashFlowApp() {
                                     )
                                 }
                             },
-                            label = { Text(item.label) },
+                            label = {
+                                Text(
+                                    item.label,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    letterSpacing = 0.5.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
                             selected = selected,
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.primary,
+                                selectedTextColor = MaterialTheme.colorScheme.primary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                            ),
                             onClick = {
                                 navController.navigate(item.screen.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {

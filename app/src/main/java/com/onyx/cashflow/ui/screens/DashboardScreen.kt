@@ -85,18 +85,21 @@ fun DashboardScreen(
 
     Scaffold(
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            FloatingActionButton(
                 onClick = onAddTransaction,
-                icon = { Icon(Icons.Default.Add, contentDescription = "Add") },
-                text = { Text("Add") },
+                shape = RoundedCornerShape(16.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+            }
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -104,7 +107,7 @@ fun DashboardScreen(
             // Month selector
             item {
                 MonthSelector(
-                    monthLabel = monthFormat.format(selectedMonth.time),
+                    monthLabel = monthFormat.format(selectedMonth.time).uppercase(),
                     onPrevious = viewModel::previousMonth,
                     onNext = viewModel::nextMonth
                 )
@@ -118,15 +121,15 @@ fun DashboardScreen(
                 ) {
                     SummaryCard(
                         modifier = Modifier.weight(1f),
-                        label = "Spent",
+                        label = "SPENT",
                         amount = currencyFormat.format(totalExpenses),
                         color = MaterialTheme.colorScheme.error
                     )
                     SummaryCard(
                         modifier = Modifier.weight(1f),
-                        label = "Earned",
+                        label = "EARNED",
                         amount = currencyFormat.format(totalIncome),
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -134,32 +137,38 @@ fun DashboardScreen(
             // Balance card
             item {
                 val balance = totalIncome - totalExpenses
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    shape = RoundedCornerShape(16.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(20.dp)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            "Balance",
+                            "BALANCE",
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            letterSpacing = 2.sp
                         )
-                        Text(
-                            currencyFormat.format(balance),
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = if (balance >= 0) MaterialTheme.colorScheme.secondary
-                            else MaterialTheme.colorScheme.error
-                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                currencyFormat.format(balance),
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = if (balance >= 0) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             }
@@ -187,28 +196,38 @@ fun DashboardScreen(
             // Pie chart
             if (categoryTotals.isNotEmpty()) {
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(20.dp)
                     ) {
-                        Column(modifier = Modifier.padding(20.dp)) {
+                        Column {
                             Text(
-                                "Spending by Category",
+                                "SPENDING BY CATEGORY",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             Spacer(Modifier.height(16.dp))
-                            DonutChart(
-                                data = categoryTotals,
-                                total = totalExpenses,
+                            // Chart matching screenshot
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(200.dp)
-                            )
-                            Spacer(Modifier.height(12.dp))
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .padding(16.dp)
+                            ) {
+                                DonutChart(
+                                    data = categoryTotals,
+                                    total = totalExpenses,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            Spacer(Modifier.height(16.dp))
                             categoryTotals.forEach { ct ->
                                 CategoryLegendItem(
                                     name = ct.categoryName ?: "Unknown",
@@ -225,61 +244,68 @@ fun DashboardScreen(
             // Recent transactions header
             item {
                 Text(
-                    "Recent Transactions",
+                    "RECENT TRANSACTIONS",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    letterSpacing = 1.sp,
+                    modifier = Modifier.padding(top = 8.dp)
                 )
             }
 
             if (recentTransactions.isEmpty()) {
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surface),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                Icons.Default.ReceiptLong,
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                            )
-                            Spacer(Modifier.height(8.dp))
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.Wallet,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(64.dp),
+                                    tint = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .offset(x = 20.dp, y = (-20).dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                             Text(
-                                "No transactions yet",
+                                "zero Transactions",
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                            )
-                            Text(
-                                "Tap + to add your first expense",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                color = MaterialTheme.colorScheme.onSurface,
+                                letterSpacing = 1.sp
                             )
                         }
                     }
                 }
-            }
-
-            items(recentTransactions, key = { it.id }) { transaction ->
-                val category = categories.find { it.id == transaction.categoryId }
-                TransactionItem(
-                    transaction = transaction,
-                    category = category,
-                    currencyFormat = currencyFormat,
-                    onClick = { viewModel.startEditCategory(transaction) }
-                )
+            } else {
+                items(recentTransactions, key = { it.id }) { transaction ->
+                    val category = categories.find { it.id == transaction.categoryId }
+                    TransactionItem(
+                        transaction = transaction,
+                        category = category,
+                        currencyFormat = currencyFormat,
+                        onClick = { viewModel.startEditCategory(transaction) }
+                    )
+                }
             }
 
             // Bottom spacer for FAB
-            item { Spacer(Modifier.height(72.dp)) }
+            item { Spacer(Modifier.height(80.dp)) }
         }
     }
 }
@@ -295,16 +321,36 @@ private fun MonthSelector(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onPrevious) {
-            Icon(Icons.Default.ChevronLeft, "Previous month")
+        IconButton(
+            onClick = onPrevious,
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            Icon(
+                Icons.Default.ChevronLeft,
+                "Previous month",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
         Text(
             monthLabel,
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 2.sp,
+            color = MaterialTheme.colorScheme.onBackground
         )
-        IconButton(onClick = onNext) {
-            Icon(Icons.Default.ChevronRight, "Next month")
+        IconButton(
+            onClick = onNext,
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            Icon(
+                Icons.Default.ChevronRight,
+                "Next month",
+                tint = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
@@ -316,26 +362,35 @@ private fun SummaryCard(
     amount: String,
     color: Color
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = color.copy(alpha = 0.12f)
-        )
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column {
             Text(
                 label,
                 style = MaterialTheme.typography.labelMedium,
-                color = color
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                letterSpacing = 1.sp
             )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                amount,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = color
-            )
+            Spacer(Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Text(
+                    amount,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = color
+                )
+            }
         }
     }
 }
@@ -353,7 +408,7 @@ private fun DonutChart(
     )
 
     Canvas(modifier = modifier) {
-        val strokeWidth = 40.dp.toPx()
+        val strokeWidth = 24.dp.toPx()
         val radius = (minOf(size.width, size.height) - strokeWidth) / 2
         val center = Offset(size.width / 2, size.height / 2)
         val rect = Size(radius * 2, radius * 2)
@@ -391,26 +446,29 @@ private fun CategoryLegendItem(
     ) {
         Box(
             modifier = Modifier
-                .size(12.dp)
-                .clip(CircleShape)
+                .size(16.dp)
+                .clip(RoundedCornerShape(4.dp))
                 .background(color)
         )
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(12.dp))
         Text(
-            name,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(1f)
+            name.uppercase(),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.weight(1f),
+            letterSpacing = 0.5.sp,
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             "$percentage%",
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(12.dp))
         Text(
             amount,
             style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -425,54 +483,51 @@ private fun TransactionItem(
     val dateFormat = remember { SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()) }
     val isExpense = transaction.type == TransactionType.EXPENSE
 
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable { onClick() }
+            .padding(16.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Category color dot
+            // Category indicator — rounded shape
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        Color(category?.color ?: 0xFF78909C).copy(alpha = 0.2f)
-                    ),
+                    .background(Color(category?.color ?: 0xFF424242).copy(alpha = 0.2f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = if (isExpense) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward,
                     contentDescription = null,
-                    tint = Color(category?.color ?: 0xFF78909C),
-                    modifier = Modifier.size(20.dp)
+                    tint = Color(category?.color ?: 0xFFAAAAAA),
+                    modifier = Modifier.size(24.dp)
                 )
             }
 
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    category?.name ?: "Unknown",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
+                    (category?.name ?: "Unknown").uppercase(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    letterSpacing = 0.5.sp,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 if (transaction.note.isNotBlank()) {
                     Text(
                         transaction.note,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -480,7 +535,7 @@ private fun TransactionItem(
                 Text(
                     dateFormat.format(Date(transaction.date)),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                 )
             }
 
@@ -489,7 +544,7 @@ private fun TransactionItem(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = if (isExpense) MaterialTheme.colorScheme.error
-                else MaterialTheme.colorScheme.secondary
+                else MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -504,7 +559,12 @@ private fun EditCategoryDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Change Category") },
+        title = {
+            Text(
+                "Change Category",
+                letterSpacing = 1.sp
+            )
+        },
         text = {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -515,7 +575,7 @@ private fun EditCategoryDialog(
 
                     Surface(
                         onClick = { onSelectCategory(category.id) },
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(8.dp),
                         color = if (isSelected) catColor.copy(alpha = 0.15f)
                         else Color.Transparent
                     ) {
@@ -527,17 +587,18 @@ private fun EditCategoryDialog(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(12.dp)
-                                    .clip(CircleShape)
+                                    .size(16.dp)
+                                    .clip(RoundedCornerShape(4.dp))
                                     .background(catColor)
                             )
                             Spacer(Modifier.width(12.dp))
                             Text(
                                 category.name,
-                                style = MaterialTheme.typography.bodyLarge,
+                                style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                 color = if (isSelected) catColor else MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                letterSpacing = 0.5.sp
                             )
                             if (isSelected) {
                                 Icon(
@@ -552,8 +613,12 @@ private fun EditCategoryDialog(
                 }
             }
         },
+        shape = RoundedCornerShape(16.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
         }
     )
 }
