@@ -4,11 +4,11 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -16,7 +16,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -64,26 +63,29 @@ fun DashboardScreen(
 
     Scaffold(
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            FloatingActionButton(
                 onClick = onAddTransaction,
-                icon = { Icon(Icons.Default.Add, contentDescription = "Add") },
-                text = { Text("Add") },
+                shape = RoundedCornerShape(0.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add")
+            }
         }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Month selector
             item {
                 MonthSelector(
-                    monthLabel = monthFormat.format(selectedMonth.time),
+                    monthLabel = monthFormat.format(selectedMonth.time).uppercase(),
                     onPrevious = viewModel::previousMonth,
                     onNext = viewModel::nextMonth
                 )
@@ -97,13 +99,13 @@ fun DashboardScreen(
                 ) {
                     SummaryCard(
                         modifier = Modifier.weight(1f),
-                        label = "Spent",
+                        label = "SPENT",
                         amount = currencyFormat.format(totalExpenses),
                         color = MaterialTheme.colorScheme.error
                     )
                     SummaryCard(
                         modifier = Modifier.weight(1f),
-                        label = "Earned",
+                        label = "EARNED",
                         amount = currencyFormat.format(totalIncome),
                         color = MaterialTheme.colorScheme.secondary
                     )
@@ -113,24 +115,23 @@ fun DashboardScreen(
             // Balance card
             item {
                 val balance = totalIncome - totalExpenses
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    ),
-                    shape = RoundedCornerShape(16.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .border(1.dp, MaterialTheme.colorScheme.outline)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .padding(20.dp)
                 ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(20.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            "Balance",
+                            "BALANCE",
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            letterSpacing = 2.sp
                         )
                         Text(
                             currencyFormat.format(balance),
@@ -146,18 +147,19 @@ fun DashboardScreen(
             // Pie chart
             if (categoryTotals.isNotEmpty()) {
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, MaterialTheme.colorScheme.outline)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(20.dp)
                     ) {
-                        Column(modifier = Modifier.padding(20.dp)) {
+                        Column {
                             Text(
-                                "Spending by Category",
+                                "SPENDING BY CATEGORY",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
                             )
                             Spacer(Modifier.height(16.dp))
                             DonutChart(
@@ -184,27 +186,24 @@ fun DashboardScreen(
             // Recent transactions header
             item {
                 Text(
-                    "Recent Transactions",
+                    "RECENT TRANSACTIONS",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 2.sp
                 )
             }
 
             if (recentTransactions.isEmpty()) {
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant
-                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, MaterialTheme.colorScheme.outline)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(
                                 Icons.Default.ReceiptLong,
                                 contentDescription = null,
@@ -255,15 +254,25 @@ private fun MonthSelector(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onPrevious) {
-            Icon(Icons.Default.ChevronLeft, "Previous month")
+            Icon(
+                Icons.Default.ChevronLeft,
+                "Previous month",
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
         Text(
             monthLabel,
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 3.sp,
+            color = MaterialTheme.colorScheme.onBackground
         )
         IconButton(onClick = onNext) {
-            Icon(Icons.Default.ChevronRight, "Next month")
+            Icon(
+                Icons.Default.ChevronRight,
+                "Next month",
+                tint = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
@@ -275,18 +284,18 @@ private fun SummaryCard(
     amount: String,
     color: Color
 ) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = color.copy(alpha = 0.12f)
-        )
+    Box(
+        modifier = modifier
+            .border(1.dp, color.copy(alpha = 0.5f))
+            .background(color.copy(alpha = 0.08f))
+            .padding(16.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column {
             Text(
                 label,
                 style = MaterialTheme.typography.labelMedium,
-                color = color
+                color = color,
+                letterSpacing = 2.sp
             )
             Spacer(Modifier.height(4.dp))
             Text(
@@ -312,7 +321,7 @@ private fun DonutChart(
     )
 
     Canvas(modifier = modifier) {
-        val strokeWidth = 40.dp.toPx()
+        val strokeWidth = 24.dp.toPx()
         val radius = (minOf(size.width, size.height) - strokeWidth) / 2
         val center = Offset(size.width / 2, size.height / 2)
         val rect = Size(radius * 2, radius * 2)
@@ -328,7 +337,7 @@ private fun DonutChart(
                 useCenter = false,
                 topLeft = topLeft,
                 size = rect,
-                style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                style = Stroke(width = strokeWidth, cap = StrokeCap.Butt)
             )
             startAngle += sweep
         }
@@ -351,14 +360,14 @@ private fun CategoryLegendItem(
         Box(
             modifier = Modifier
                 .size(12.dp)
-                .clip(CircleShape)
                 .background(color)
         )
         Spacer(Modifier.width(8.dp))
         Text(
-            name,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(1f)
+            name.uppercase(),
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.weight(1f),
+            letterSpacing = 0.5.sp
         )
         Text(
             "$percentage%",
@@ -369,7 +378,7 @@ private fun CategoryLegendItem(
         Text(
             amount,
             style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Bold
         )
     }
 }
@@ -384,29 +393,23 @@ private fun TransactionItem(
     val dateFormat = remember { SimpleDateFormat("dd MMM, hh:mm a", Locale.getDefault()) }
     val isExpense = transaction.type == TransactionType.EXPENSE
 
-    Card(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+            .clickable { onClick() }
+            .border(1.dp, MaterialTheme.colorScheme.outline)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(16.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Category color dot
+            // Category indicator — flat square
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(
-                        Color(category?.color ?: 0xFF78909C).copy(alpha = 0.2f)
-                    ),
+                    .background(Color(category?.color ?: 0xFF78909C).copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -421,11 +424,12 @@ private fun TransactionItem(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    category?.name ?: "Unknown",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
+                    (category?.name ?: "Unknown").uppercase(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    letterSpacing = 0.5.sp
                 )
                 if (transaction.note.isNotBlank()) {
                     Text(
@@ -463,10 +467,15 @@ private fun EditCategoryDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Change Category") },
+        title = {
+            Text(
+                "CHANGE CATEGORY",
+                letterSpacing = 2.sp
+            )
+        },
         text = {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 items(categories, key = { it.id }) { category ->
                     val isSelected = category.id == currentCategoryId
@@ -474,7 +483,7 @@ private fun EditCategoryDialog(
 
                     Surface(
                         onClick = { onSelectCategory(category.id) },
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(0.dp),
                         color = if (isSelected) catColor.copy(alpha = 0.15f)
                         else Color.Transparent
                     ) {
@@ -487,16 +496,16 @@ private fun EditCategoryDialog(
                             Box(
                                 modifier = Modifier
                                     .size(12.dp)
-                                    .clip(CircleShape)
                                     .background(catColor)
                             )
                             Spacer(Modifier.width(12.dp))
                             Text(
-                                category.name,
-                                style = MaterialTheme.typography.bodyLarge,
+                                category.name.uppercase(),
+                                style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                 color = if (isSelected) catColor else MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                letterSpacing = 0.5.sp
                             )
                             if (isSelected) {
                                 Icon(
@@ -511,8 +520,15 @@ private fun EditCategoryDialog(
                 }
             }
         },
+        shape = RoundedCornerShape(0.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) {
+                Text(
+                    "CANCEL",
+                    letterSpacing = 1.sp
+                )
+            }
         }
     )
 }

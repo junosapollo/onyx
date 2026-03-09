@@ -1,84 +1,72 @@
 package com.onyx.cashflow.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
-// Finance-oriented teal/green palette
-private val Teal200 = Color(0xFF80CBC4)
-private val Teal500 = Color(0xFF009688)
-private val Teal700 = Color(0xFF00796B)
-private val Green400 = Color(0xFF66BB6A)
-private val DarkSurface = Color(0xFF121212)
-private val DarkSurfaceVariant = Color(0xFF1E1E2E)
-private val DarkCard = Color(0xFF252537)
+// ── High-contrast retro palette ──────────────────────────────────────────────
+private val Black         = Color(0xFF000000)
+private val NearBlack     = Color(0xFF0A0A0A)
+private val DarkGray      = Color(0xFF111111)
+private val MidGray       = Color(0xFF1A1A1A)
+private val BorderGray    = Color(0xFF333333)
+private val TextGray      = Color(0xFF999999)
+private val White         = Color(0xFFFFFFFF)
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Teal200,
-    onPrimary = Color(0xFF003731),
-    primaryContainer = Teal700,
-    onPrimaryContainer = Color(0xFFA7F3EC),
-    secondary = Green400,
-    onSecondary = Color(0xFF00391C),
-    secondaryContainer = Color(0xFF005229),
-    onSecondaryContainer = Color(0xFF78DC77),
-    tertiary = Color(0xFFFFB74D),
-    onTertiary = Color(0xFF462B00),
-    background = DarkSurface,
-    onBackground = Color(0xFFE6E1E5),
-    surface = DarkSurfaceVariant,
-    onSurface = Color(0xFFE6E1E5),
-    surfaceVariant = DarkCard,
-    onSurfaceVariant = Color(0xFFCAC4D0),
-    error = Color(0xFFEF5350),
-    onError = Color.White,
-    outline = Color(0xFF49454F),
+private val NeonGreen     = Color(0xFF00FF41)   // terminal green — primary
+private val DarkGreen     = Color(0xFF003B0F)   // onPrimary bg
+private val Amber         = Color(0xFFFFB000)   // secondary
+private val DarkAmber     = Color(0xFF3D2B00)   // onSecondary bg
+private val BrightRed     = Color(0xFFFF3333)   // error
+private val DarkRed       = Color(0xFF3B0000)   // onError bg
+private val Cyan          = Color(0xFF00E5FF)   // tertiary accent
+
+private val RetroColorScheme = darkColorScheme(
+    primary             = NeonGreen,
+    onPrimary           = Black,
+    primaryContainer    = DarkGreen,
+    onPrimaryContainer  = NeonGreen,
+    secondary           = Amber,
+    onSecondary         = Black,
+    secondaryContainer  = DarkAmber,
+    onSecondaryContainer = Amber,
+    tertiary            = Cyan,
+    onTertiary          = Black,
+    background          = Black,
+    onBackground        = White,
+    surface             = NearBlack,
+    onSurface           = White,
+    surfaceVariant      = DarkGray,
+    onSurfaceVariant    = Color(0xFFCCCCCC),
+    error               = BrightRed,
+    onError             = White,
+    errorContainer      = DarkRed,
+    onErrorContainer    = BrightRed,
+    outline             = BorderGray,
+    outlineVariant      = Color(0xFF222222),
+    inverseSurface      = White,
+    inverseOnSurface    = Black,
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Teal500,
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFB2DFDB),
-    onPrimaryContainer = Color(0xFF002019),
-    secondary = Color(0xFF4CAF50),
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFC8E6C9),
-    onSecondaryContainer = Color(0xFF002106),
-    tertiary = Color(0xFFFF9800),
-    onTertiary = Color.White,
-    background = Color(0xFFF8F9FA),
-    onBackground = Color(0xFF1C1B1F),
-    surface = Color.White,
-    onSurface = Color(0xFF1C1B1F),
-    surfaceVariant = Color(0xFFF0F0F5),
-    onSurfaceVariant = Color(0xFF49454F),
-    error = Color(0xFFB3261E),
-    onError = Color.White,
-    outline = Color(0xFF79747E),
+// ── Flat shapes — sharp corners everywhere ───────────────────────────────────
+private val RetroShapes = Shapes(
+    extraSmall = RoundedCornerShape(0.dp),
+    small      = RoundedCornerShape(2.dp),
+    medium     = RoundedCornerShape(0.dp),
+    large      = RoundedCornerShape(0.dp),
+    extraLarge = RoundedCornerShape(0.dp),
 )
 
 @Composable
 fun CashFlowTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context)
-            else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography(),
+        colorScheme = RetroColorScheme,
+        typography = AppTypography,
+        shapes = RetroShapes,
         content = content
     )
 }

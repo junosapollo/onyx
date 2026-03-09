@@ -1,10 +1,10 @@
 package com.onyx.cashflow.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,10 +12,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.onyx.cashflow.data.Category
 import com.onyx.cashflow.viewmodel.CategoryViewModel
 
@@ -43,19 +43,22 @@ fun CategoriesScreen(viewModel: CategoryViewModel) {
 
     Scaffold(
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            FloatingActionButton(
                 onClick = viewModel::showAddDialog,
-                icon = { Icon(Icons.Default.Add, "Add category") },
-                text = { Text("Add") },
+                shape = RoundedCornerShape(0.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp)
+            ) {
+                Icon(Icons.Default.Add, "Add category")
+            }
         }
     ) { padding ->
         if (categories.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
@@ -68,9 +71,10 @@ fun CategoriesScreen(viewModel: CategoryViewModel) {
                     )
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        "No categories yet",
+                        "NO CATEGORIES YET",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        letterSpacing = 2.sp
                     )
                 }
             }
@@ -78,16 +82,18 @@ fun CategoriesScreen(viewModel: CategoryViewModel) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(padding),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
                     Text(
-                        "Categories",
+                        "CATEGORIES",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        modifier = Modifier.padding(bottom = 8.dp),
+                        letterSpacing = 3.sp
                     )
                 }
 
@@ -116,48 +122,58 @@ private fun CategoryItem(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("Delete category?") },
-            text = { Text("\"${category.name}\" will be removed. Transactions using this category won't be deleted.") },
+            title = {
+                Text(
+                    "DELETE CATEGORY?",
+                    letterSpacing = 1.sp
+                )
+            },
+            text = {
+                Text("\"${category.name}\" will be removed. Transactions using this category won't be deleted.")
+            },
+            shape = RoundedCornerShape(0.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
             confirmButton = {
                 TextButton(onClick = {
                     onDelete()
                     showDeleteConfirm = false
                 }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(
+                        "DELETE",
+                        color = MaterialTheme.colorScheme.error,
+                        letterSpacing = 1.sp
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text("Cancel")
+                    Text("CANCEL", letterSpacing = 1.sp)
                 }
             }
         )
     }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outline)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Category color — flat square
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(category.color).copy(alpha = 0.2f)),
+                    .background(Color(category.color).copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
                     modifier = Modifier
                         .size(16.dp)
-                        .clip(CircleShape)
                         .background(Color(category.color))
                 )
             }
@@ -165,10 +181,11 @@ private fun CategoryItem(
             Spacer(Modifier.width(12.dp))
 
             Text(
-                category.name,
+                category.name.uppercase(),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                letterSpacing = 1.sp
             )
 
             IconButton(onClick = onEdit) {
@@ -204,41 +221,54 @@ private fun CategoryDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (category != null) "Edit Category" else "New Category") },
+        title = {
+            Text(
+                if (category != null) "EDIT CATEGORY" else "NEW CATEGORY",
+                letterSpacing = 2.sp
+            )
+        },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Category name") },
+                    label = { Text("CATEGORY NAME", letterSpacing = 1.sp) },
                     singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    shape = RoundedCornerShape(0.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
 
                 Text(
-                    "Color",
+                    "COLOR",
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    letterSpacing = 2.sp
                 )
 
                 FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     PRESET_COLORS.forEach { color ->
                         val isSelected = selectedColor == color
                         Surface(
                             onClick = { selectedColor = color },
-                            shape = CircleShape,
+                            shape = RoundedCornerShape(0.dp),
                             color = Color(color),
-                            modifier = Modifier.size(36.dp),
-                            border = if (isSelected) {
-                                androidx.compose.foundation.BorderStroke(
-                                    3.dp,
-                                    MaterialTheme.colorScheme.onSurface
+                            modifier = Modifier
+                                .size(36.dp)
+                                .then(
+                                    if (isSelected) Modifier.border(
+                                        3.dp,
+                                        MaterialTheme.colorScheme.onSurface
+                                    )
+                                    else Modifier
                                 )
-                            } else null
                         ) {
                             if (isSelected) {
                                 Box(contentAlignment = Alignment.Center) {
@@ -255,16 +285,20 @@ private fun CategoryDialog(
                 }
             }
         },
+        shape = RoundedCornerShape(0.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
         confirmButton = {
             TextButton(
                 onClick = { if (name.isNotBlank()) onSave(name.trim(), selectedColor) },
                 enabled = name.isNotBlank()
             ) {
-                Text("Save")
+                Text("SAVE", letterSpacing = 1.sp)
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) {
+                Text("CANCEL", letterSpacing = 1.sp)
+            }
         }
     )
 }
