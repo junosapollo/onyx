@@ -51,7 +51,7 @@ fun AddTransactionScreen(
     if (showDatePicker) {
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
-            shape = RoundedCornerShape(0.dp),
+            shape = RoundedCornerShape(16.dp),
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { viewModel.updateDate(it) }
@@ -118,7 +118,7 @@ fun AddTransactionScreen(
                     OutlinedButton(
                         onClick = { viewModel.updateType(type) },
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(0.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.outlinedButtonColors(
                             containerColor = if (selected) color.copy(alpha = 0.12f) else Color.Transparent,
                             contentColor = if (selected) color else MaterialTheme.colorScheme.onSurfaceVariant
@@ -159,7 +159,7 @@ fun AddTransactionScreen(
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(0.dp),
+                shape = RoundedCornerShape(12.dp),
                 textStyle = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
@@ -199,7 +199,7 @@ fun AddTransactionScreen(
                                 fontSize = 11.sp
                             )
                         },
-                        shape = RoundedCornerShape(0.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = FilterChipDefaults.filterChipColors(
                             selectedContainerColor = catColor.copy(alpha = 0.15f),
                             selectedLabelColor = catColor
@@ -229,7 +229,7 @@ fun AddTransactionScreen(
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(0.dp),
+                shape = RoundedCornerShape(12.dp),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -242,7 +242,8 @@ fun AddTransactionScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, MaterialTheme.colorScheme.outline)
+                    .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+                    .clip(RoundedCornerShape(12.dp))
                     .clickable { showDatePicker = true }
                     .padding(16.dp)
             ) {
@@ -290,7 +291,7 @@ fun AddTransactionScreen(
                     .fillMaxWidth()
                     .height(56.dp),
                 enabled = !formState.isSaving,
-                shape = RoundedCornerShape(0.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary

@@ -9,12 +9,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.Sms
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Category
-import androidx.compose.material.icons.outlined.Dashboard
-import androidx.compose.material.icons.outlined.Sms
+import androidx.compose.material.icons.outlined.CreditCard
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -42,9 +44,10 @@ import com.onyx.cashflow.viewmodel.PendingViewModel
 import com.onyx.cashflow.viewmodel.TransactionViewModel
 
 sealed class Screen(val route: String) {
-    data object Dashboard : Screen("dashboard")
+    data object Home : Screen("home")
+    data object Reports : Screen("reports")
     data object Categories : Screen("categories")
-    data object Pending : Screen("pending")
+    data object Debts : Screen("debts")
     data object AddTransaction : Screen("add_transaction")
 }
 
@@ -93,18 +96,20 @@ fun CashFlowApp() {
     val pendingCount by pendingViewModel.pendingCount.collectAsState()
 
     val navItems = listOf(
-        BottomNavItem(Screen.Dashboard, "DASH", Icons.Filled.Dashboard, Icons.Outlined.Dashboard),
-        BottomNavItem(Screen.Pending, "PENDING", Icons.Filled.Sms, Icons.Outlined.Sms),
-        BottomNavItem(Screen.Categories, "CATEGORIES", Icons.Filled.Category, Icons.Outlined.Category)
+        BottomNavItem(Screen.Home, "Home", Icons.Filled.Home, Icons.Outlined.Home),
+        BottomNavItem(Screen.Reports, "Reports", Icons.Filled.BarChart, Icons.Outlined.BarChart),
+        BottomNavItem(Screen.Categories, "Categories", Icons.Filled.Category, Icons.Outlined.Category),
+        BottomNavItem(Screen.Debts, "Debts", Icons.Filled.CreditCard, Icons.Outlined.CreditCard)
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
     val showBottomBar = currentDestination?.route in listOf(
-        Screen.Dashboard.route,
+        Screen.Home.route,
+        Screen.Reports.route,
         Screen.Categories.route,
-        Screen.Pending.route
+        Screen.Debts.route
     )
 
     Scaffold(
@@ -121,39 +126,17 @@ fun CashFlowApp() {
 
                         NavigationBarItem(
                             icon = {
-                                if (item.screen == Screen.Pending && pendingCount > 0) {
-                                    BadgedBox(
-                                        badge = {
-                                            Badge(
-                                                containerColor = MaterialTheme.colorScheme.error,
-                                                contentColor = MaterialTheme.colorScheme.onError
-                                            ) {
-                                                Text(
-                                                    "$pendingCount",
-                                                    fontSize = 10.sp,
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                            }
-                                        }
-                                    ) {
-                                        Icon(
-                                            if (selected) item.selectedIcon else item.unselectedIcon,
-                                            contentDescription = item.label
-                                        )
-                                    }
-                                } else {
-                                    Icon(
-                                        if (selected) item.selectedIcon else item.unselectedIcon,
-                                        contentDescription = item.label
-                                    )
-                                }
+                                Icon(
+                                    if (selected) item.selectedIcon else item.unselectedIcon,
+                                    contentDescription = item.label
+                                )
                             },
                             label = {
                                 Text(
                                     item.label,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 1.sp,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    letterSpacing = 0.5.sp,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
                                 )
@@ -183,10 +166,10 @@ fun CashFlowApp() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Dashboard.route,
+            startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Dashboard.route) {
+            composable(Screen.Home.route) {
                 DashboardScreen(
                     viewModel = dashboardViewModel,
                     onAddTransaction = {
@@ -196,12 +179,20 @@ fun CashFlowApp() {
                 )
             }
 
-            composable(Screen.Pending.route) {
-                PendingScreen(viewModel = pendingViewModel)
+            composable(Screen.Reports.route) {
+                // Placeholder
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                    Text("REPORTS", style = MaterialTheme.typography.titleLarge)
+                }
             }
 
             composable(Screen.Categories.route) {
                 CategoriesScreen(viewModel = categoryViewModel)
+            }
+
+            composable(Screen.Debts.route) {
+                // Reuse Pending for now until fully replaced
+                PendingScreen(viewModel = pendingViewModel)
             }
 
             composable(Screen.AddTransaction.route) {

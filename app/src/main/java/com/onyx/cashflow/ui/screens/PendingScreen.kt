@@ -168,7 +168,8 @@ private fun PendingTransactionItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.outline)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(16.dp)
     ) {
@@ -178,10 +179,11 @@ private fun PendingTransactionItem(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Icon — flat square
+                // Icon — rounded square
                 Box(
                     modifier = Modifier
                         .size(40.dp)
+                        .clip(RoundedCornerShape(8.dp))
                         .background(
                             if (isExpense) MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
                             else MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)
@@ -269,7 +271,7 @@ private fun PendingTransactionItem(
                 OutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(0.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     ),
@@ -285,7 +287,7 @@ private fun PendingTransactionItem(
                 Button(
                     onClick = onApprove,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(0.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -309,7 +311,8 @@ private fun TrustedSenderItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.05f))
             .padding(12.dp)
     ) {
@@ -320,6 +323,7 @@ private fun TrustedSenderItem(
             Box(
                 modifier = Modifier
                     .size(32.dp)
+                    .clip(RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {

@@ -45,7 +45,7 @@ fun CategoriesScreen(viewModel: CategoryViewModel) {
         floatingActionButton = {
             FloatingActionButton(
                 onClick = viewModel::showAddDialog,
-                shape = RoundedCornerShape(0.dp),
+                shape = RoundedCornerShape(16.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp)
@@ -131,7 +131,7 @@ private fun CategoryItem(
             text = {
                 Text("\"${category.name}\" will be removed. Transactions using this category won't be deleted.")
             },
-            shape = RoundedCornerShape(0.dp),
+            shape = RoundedCornerShape(16.dp),
             containerColor = MaterialTheme.colorScheme.surface,
             confirmButton = {
                 TextButton(onClick = {
@@ -156,7 +156,8 @@ private fun CategoryItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.outline)
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
@@ -164,16 +165,18 @@ private fun CategoryItem(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Category color — flat square
+            // Category color — rounded square
             Box(
                 modifier = Modifier
                     .size(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
                     .background(Color(category.color).copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
                     modifier = Modifier
                         .size(16.dp)
+                        .clip(RoundedCornerShape(4.dp))
                         .background(Color(category.color))
                 )
             }
@@ -234,7 +237,7 @@ private fun CategoryDialog(
                     onValueChange = { name = it },
                     label = { Text("CATEGORY NAME", letterSpacing = 1.sp) },
                     singleLine = true,
-                    shape = RoundedCornerShape(0.dp),
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -258,7 +261,7 @@ private fun CategoryDialog(
                         val isSelected = selectedColor == color
                         Surface(
                             onClick = { selectedColor = color },
-                            shape = RoundedCornerShape(0.dp),
+                            shape = RoundedCornerShape(8.dp),
                             color = Color(color),
                             modifier = Modifier
                                 .size(36.dp)
@@ -285,7 +288,7 @@ private fun CategoryDialog(
                 }
             }
         },
-        shape = RoundedCornerShape(0.dp),
+        shape = RoundedCornerShape(16.dp),
         containerColor = MaterialTheme.colorScheme.surface,
         confirmButton = {
             TextButton(
