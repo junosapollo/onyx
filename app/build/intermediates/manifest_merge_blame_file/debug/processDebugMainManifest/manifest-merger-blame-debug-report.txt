@@ -37,157 +37,156 @@
 25-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:9:9-41
 26        android:supportsRtl="true"
 26-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:10:9-35
-27        android:testOnly="true"
-28        android:theme="@style/Theme.CashFlow" >
-28-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:11:9-46
-29        <activity
-29-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:13:9-21:20
-30            android:name="com.onyx.cashflow.MainActivity"
-30-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:14:13-41
-31            android:exported="true"
-31-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:15:13-36
-32            android:theme="@style/Theme.CashFlow" >
-32-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:16:13-50
-33            <intent-filter>
-33-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:17:13-20:29
-34                <action android:name="android.intent.action.MAIN" />
-34-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:18:17-69
-34-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:18:25-66
-35
-36                <category android:name="android.intent.category.LAUNCHER" />
-36-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:19:17-77
-36-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:19:27-74
-37            </intent-filter>
-38        </activity>
-39
-40        <receiver
-40-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:23:9-30:20
-41            android:name="com.onyx.cashflow.sms.SmsBroadcastReceiver"
-41-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:24:13-53
-42            android:exported="true"
-42-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:25:13-36
-43            android:permission="android.permission.BROADCAST_SMS" >
-43-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:26:13-66
-44            <intent-filter android:priority="999" >
-44-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:27:13-29:29
-44-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:27:28-50
-45                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-45-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:28:17-82
-45-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:28:25-79
-46            </intent-filter>
-47        </receiver>
-48
-49        <service
-49-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:32:9-42:19
-50            android:name="com.onyx.cashflow.accessibility.PaymentAccessibilityService"
-50-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:33:13-70
-51            android:exported="true"
-51-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:35:13-36
-52            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
-52-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:34:13-79
-53            <intent-filter>
-53-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:36:13-38:29
-54                <action android:name="android.accessibilityservice.AccessibilityService" />
-54-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:37:17-92
-54-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:37:25-89
-55            </intent-filter>
-56
-57            <meta-data
-57-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:39:13-41:72
-58                android:name="android.accessibilityservice"
-58-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:40:17-60
-59                android:resource="@xml/accessibility_service_config" />
-59-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:41:17-69
-60        </service>
-61
-62        <activity
-62-->[androidx.compose.ui:ui-tooling-android:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/f982046dca5a15c11ac74bce6e79610e/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
-63            android:name="androidx.compose.ui.tooling.PreviewActivity"
-63-->[androidx.compose.ui:ui-tooling-android:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/f982046dca5a15c11ac74bce6e79610e/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
-64            android:exported="true" />
-64-->[androidx.compose.ui:ui-tooling-android:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/f982046dca5a15c11ac74bce6e79610e/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
-65
-66        <provider
-66-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
-67            android:name="androidx.startup.InitializationProvider"
-67-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
-68            android:authorities="com.onyx.cashflow.androidx-startup"
-68-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
-69            android:exported="false" >
-69-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
-70            <meta-data
-70-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
-71                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-71-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
-72                android:value="androidx.startup" />
-72-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
-73            <meta-data
-73-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/mxnxsh/.gradle/caches/8.11.1/transforms/b1d2a829bd18323c756fa9c68fbd3976/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:29:13-31:52
-74                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-74-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/mxnxsh/.gradle/caches/8.11.1/transforms/b1d2a829bd18323c756fa9c68fbd3976/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:30:17-78
-75                android:value="androidx.startup" />
-75-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/mxnxsh/.gradle/caches/8.11.1/transforms/b1d2a829bd18323c756fa9c68fbd3976/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:31:17-49
-76            <meta-data
-76-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
-77                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
-77-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
-78                android:value="androidx.startup" />
-78-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
-79        </provider>
-80
-81        <activity
-81-->[androidx.compose.ui:ui-test-manifest:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/6cd62caa343280f282ffe0e9b353e0b5/transformed/ui-test-manifest-1.7.6/AndroidManifest.xml:23:9-25:39
-82            android:name="androidx.activity.ComponentActivity"
-82-->[androidx.compose.ui:ui-test-manifest:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/6cd62caa343280f282ffe0e9b353e0b5/transformed/ui-test-manifest-1.7.6/AndroidManifest.xml:24:13-63
-83            android:exported="true" />
-83-->[androidx.compose.ui:ui-test-manifest:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/6cd62caa343280f282ffe0e9b353e0b5/transformed/ui-test-manifest-1.7.6/AndroidManifest.xml:25:13-36
-84
-85        <service
-85-->[androidx.room:room-runtime:2.6.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/4e015ed0d3bccb1a3eb3b16fee64d976/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
-86            android:name="androidx.room.MultiInstanceInvalidationService"
-86-->[androidx.room:room-runtime:2.6.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/4e015ed0d3bccb1a3eb3b16fee64d976/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
-87            android:directBootAware="true"
-87-->[androidx.room:room-runtime:2.6.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/4e015ed0d3bccb1a3eb3b16fee64d976/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
-88            android:exported="false" />
-88-->[androidx.room:room-runtime:2.6.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/4e015ed0d3bccb1a3eb3b16fee64d976/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
-89
-90        <receiver
-90-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
-91            android:name="androidx.profileinstaller.ProfileInstallReceiver"
-91-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
-92            android:directBootAware="false"
-92-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
-93            android:enabled="true"
-93-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
-94            android:exported="true"
-94-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
-95            android:permission="android.permission.DUMP" >
-95-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
-96            <intent-filter>
-96-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
-97                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
-97-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
-97-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
-98            </intent-filter>
-99            <intent-filter>
-99-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
-100                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
-100-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
-100-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
-101            </intent-filter>
-102            <intent-filter>
-102-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
-103                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
-103-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
-103-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
-104            </intent-filter>
-105            <intent-filter>
-105-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
-106                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
-106-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
-106-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
-107            </intent-filter>
-108        </receiver>
-109    </application>
-110
-111</manifest>
+27        android:theme="@style/Theme.CashFlow" >
+27-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:11:9-46
+28        <activity
+28-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:13:9-21:20
+29            android:name="com.onyx.cashflow.MainActivity"
+29-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:14:13-41
+30            android:exported="true"
+30-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:15:13-36
+31            android:theme="@style/Theme.CashFlow" >
+31-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:16:13-50
+32            <intent-filter>
+32-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:17:13-20:29
+33                <action android:name="android.intent.action.MAIN" />
+33-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:18:17-69
+33-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:18:25-66
+34
+35                <category android:name="android.intent.category.LAUNCHER" />
+35-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:19:17-77
+35-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:19:27-74
+36            </intent-filter>
+37        </activity>
+38
+39        <receiver
+39-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:23:9-30:20
+40            android:name="com.onyx.cashflow.sms.SmsBroadcastReceiver"
+40-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:24:13-53
+41            android:exported="true"
+41-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:25:13-36
+42            android:permission="android.permission.BROADCAST_SMS" >
+42-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:26:13-66
+43            <intent-filter android:priority="999" >
+43-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:27:13-29:29
+43-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:27:28-50
+44                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+44-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:28:17-82
+44-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:28:25-79
+45            </intent-filter>
+46        </receiver>
+47
+48        <service
+48-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:32:9-42:19
+49            android:name="com.onyx.cashflow.accessibility.PaymentAccessibilityService"
+49-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:33:13-70
+50            android:exported="true"
+50-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:35:13-36
+51            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE" >
+51-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:34:13-79
+52            <intent-filter>
+52-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:36:13-38:29
+53                <action android:name="android.accessibilityservice.AccessibilityService" />
+53-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:37:17-92
+53-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:37:25-89
+54            </intent-filter>
+55
+56            <meta-data
+56-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:39:13-41:72
+57                android:name="android.accessibilityservice"
+57-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:40:17-60
+58                android:resource="@xml/accessibility_service_config" />
+58-->/home/mxnxsh/onyx/app/src/main/AndroidManifest.xml:41:17-69
+59        </service>
+60
+61        <activity
+61-->[androidx.compose.ui:ui-tooling-android:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/f982046dca5a15c11ac74bce6e79610e/transformed/ui-tooling-release/AndroidManifest.xml:23:9-25:39
+62            android:name="androidx.compose.ui.tooling.PreviewActivity"
+62-->[androidx.compose.ui:ui-tooling-android:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/f982046dca5a15c11ac74bce6e79610e/transformed/ui-tooling-release/AndroidManifest.xml:24:13-71
+63            android:exported="true" />
+63-->[androidx.compose.ui:ui-tooling-android:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/f982046dca5a15c11ac74bce6e79610e/transformed/ui-tooling-release/AndroidManifest.xml:25:13-36
+64
+65        <provider
+65-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:24:9-32:20
+66            android:name="androidx.startup.InitializationProvider"
+66-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:25:13-67
+67            android:authorities="com.onyx.cashflow.androidx-startup"
+67-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:26:13-68
+68            android:exported="false" >
+68-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:27:13-37
+69            <meta-data
+69-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:29:13-31:52
+70                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+70-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:30:17-75
+71                android:value="androidx.startup" />
+71-->[androidx.emoji2:emoji2:1.3.0] /home/mxnxsh/.gradle/caches/8.11.1/transforms/ba212a6451cc424e0b2f8fde7cecc907/transformed/emoji2-1.3.0/AndroidManifest.xml:31:17-49
+72            <meta-data
+72-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/mxnxsh/.gradle/caches/8.11.1/transforms/b1d2a829bd18323c756fa9c68fbd3976/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:29:13-31:52
+73                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+73-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/mxnxsh/.gradle/caches/8.11.1/transforms/b1d2a829bd18323c756fa9c68fbd3976/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:30:17-78
+74                android:value="androidx.startup" />
+74-->[androidx.lifecycle:lifecycle-process:2.8.7] /home/mxnxsh/.gradle/caches/8.11.1/transforms/b1d2a829bd18323c756fa9c68fbd3976/transformed/lifecycle-process-2.8.7/AndroidManifest.xml:31:17-49
+75            <meta-data
+75-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:29:13-31:52
+76                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+76-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:30:17-85
+77                android:value="androidx.startup" />
+77-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:31:17-49
+78        </provider>
+79
+80        <activity
+80-->[androidx.compose.ui:ui-test-manifest:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/6cd62caa343280f282ffe0e9b353e0b5/transformed/ui-test-manifest-1.7.6/AndroidManifest.xml:23:9-25:39
+81            android:name="androidx.activity.ComponentActivity"
+81-->[androidx.compose.ui:ui-test-manifest:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/6cd62caa343280f282ffe0e9b353e0b5/transformed/ui-test-manifest-1.7.6/AndroidManifest.xml:24:13-63
+82            android:exported="true" />
+82-->[androidx.compose.ui:ui-test-manifest:1.7.6] /home/mxnxsh/.gradle/caches/8.11.1/transforms/6cd62caa343280f282ffe0e9b353e0b5/transformed/ui-test-manifest-1.7.6/AndroidManifest.xml:25:13-36
+83
+84        <service
+84-->[androidx.room:room-runtime:2.6.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/4e015ed0d3bccb1a3eb3b16fee64d976/transformed/room-runtime-2.6.1/AndroidManifest.xml:24:9-28:63
+85            android:name="androidx.room.MultiInstanceInvalidationService"
+85-->[androidx.room:room-runtime:2.6.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/4e015ed0d3bccb1a3eb3b16fee64d976/transformed/room-runtime-2.6.1/AndroidManifest.xml:25:13-74
+86            android:directBootAware="true"
+86-->[androidx.room:room-runtime:2.6.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/4e015ed0d3bccb1a3eb3b16fee64d976/transformed/room-runtime-2.6.1/AndroidManifest.xml:26:13-43
+87            android:exported="false" />
+87-->[androidx.room:room-runtime:2.6.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/4e015ed0d3bccb1a3eb3b16fee64d976/transformed/room-runtime-2.6.1/AndroidManifest.xml:27:13-37
+88
+89        <receiver
+89-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:34:9-52:20
+90            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+90-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:35:13-76
+91            android:directBootAware="false"
+91-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:36:13-44
+92            android:enabled="true"
+92-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:37:13-35
+93            android:exported="true"
+93-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:38:13-36
+94            android:permission="android.permission.DUMP" >
+94-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:39:13-57
+95            <intent-filter>
+95-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:40:13-42:29
+96                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+96-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:17-91
+96-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:41:25-88
+97            </intent-filter>
+98            <intent-filter>
+98-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:43:13-45:29
+99                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+99-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:17-85
+99-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:44:25-82
+100            </intent-filter>
+101            <intent-filter>
+101-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:46:13-48:29
+102                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+102-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:17-88
+102-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:47:25-85
+103            </intent-filter>
+104            <intent-filter>
+104-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:49:13-51:29
+105                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+105-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:17-95
+105-->[androidx.profileinstaller:profileinstaller:1.3.1] /home/mxnxsh/.gradle/caches/8.11.1/transforms/d76e44cdf45cca8fdfe18dd79a8d9f1c/transformed/profileinstaller-1.3.1/AndroidManifest.xml:50:25-92
+106            </intent-filter>
+107        </receiver>
+108    </application>
+109
+110</manifest>
