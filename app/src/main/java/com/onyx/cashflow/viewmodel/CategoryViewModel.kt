@@ -58,13 +58,14 @@ class CategoryViewModel(app: Application) : AndroidViewModel(app) {
     fun restoreDefaults() {
         viewModelScope.launch {
             val defaults = listOf(
-                Category(name = "Food", icon = "restaurant", color = 0xFFFF7043),
-                Category(name = "Travel", icon = "directions_car", color = 0xFF42A5F5),
                 Category(name = "Bills", icon = "receipt_long", color = 0xFFEF5350),
-                Category(name = "Shopping", icon = "shopping_bag", color = 0xFFAB47BC),
                 Category(name = "Entertainment", icon = "movie", color = 0xFFFFCA28),
+                Category(name = "Food", icon = "restaurant", color = 0xFFFF7043),
                 Category(name = "Health", icon = "favorite", color = 0xFF66BB6A),
-                Category(name = "Other", icon = "more_horiz", color = 0xFF78909C),
+                Category(name = "Shopping", icon = "shopping_bag", color = 0xFFAB47BC),
+                Category(name = "Travel", icon = "directions_car", color = 0xFF42A5F5),
+                Category(name = "Academics", icon = "school", color = 0xFF26A69A),
+                Category(name = "Friends", icon = "group", color = 0xFF5C6BC0)
             )
             defaults.forEach { categoryDao.insert(it) }
         }

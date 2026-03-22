@@ -136,9 +136,9 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
                     val categoryIdToAssign = if (rule != null) {
                         rule.categoryId
                     } else {
-                        // Fallback to "Other" category
+                        // Fallback to "Bills" category
                         val cats = db.categoryDao().getAll().first()
-                        cats.find { it.name.equals("Other", ignoreCase = true) }?.id
+                        cats.find { it.name.equals("Bills", ignoreCase = true) }?.id
                     }
 
                     val twoMinsAgo = System.currentTimeMillis() - (2 * 60 * 1000)

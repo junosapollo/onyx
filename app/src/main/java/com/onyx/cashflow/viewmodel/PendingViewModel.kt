@@ -37,9 +37,9 @@ class PendingViewModel(app: Application) : AndroidViewModel(app) {
                 )
             )
 
-            // 2. Find "Other" category for default assignment
+            // 2. Find "Bills" category for default assignment
             val otherCategory = categoryDao.getAll().first().find {
-                it.name.equals("Other", ignoreCase = true)
+                it.name.equals("Bills", ignoreCase = true)
             }
 
             // 3. Save as confirmed transaction
