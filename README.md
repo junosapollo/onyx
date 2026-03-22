@@ -20,12 +20,6 @@ Onyx captures your spending habits in real-time, directly from your payment apps
 - **Room** (Local Persistence)
 - **DataStore** (Settings)
 
-### Getting Started
-
-1. Clone the repository.
-2. Build and run the app in Android Studio.
-3. Enable **Onyx Accessibility Service** in your phone's Settings to start tracking.
-
 ---
 
 *Onyx is built for privacy-conscious users who want automated insights into their spending.*
