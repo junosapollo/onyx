@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="Image_gtq9n1gtq9n1gtq9.png" width="128" alt="Onyx Logo">
-</p>
+
 
 # Onyx
 
@@ -10,19 +8,19 @@ Onyx captures your spending habits in real-time, directly from your payment apps
 
 ---
 
-### ⚡ Features
+### Features
 
 - **Automated Capture**: Automatically logs transactions from supported payment apps using Android Accessibility.
 - **Privacy First**: Your data stays on your device. Local database, no analytics, no cloud sync.
 - **Offline Core**: Works entirely offline for maximum speed and reliability.
 
-### 🛠️ Tech Stack
+### Tech Stack
 
 - **Kotlin** & **Jetpack Compose**
 - **Room** (Local Persistence)
 - **DataStore** (Settings)
 
-### 📥 Getting Started
+### Getting Started
 
 1. Clone the repository.
 2. Build and run the app in Android Studio.
