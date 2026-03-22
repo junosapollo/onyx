@@ -3,24 +3,23 @@ package com.onyx.cashflow.accessibility.parsers
 import android.view.accessibility.AccessibilityNodeInfo
 
 class PhonePeParser : AppParser {
-    override fun parse(rootNode: AccessibilityNodeInfo): ParsedTransaction? {
-        // PhonePe typically shows "Payment of ₹X to Y successful." in a single node,
-        // or uses "₹X" and "Paid to Y" similar to GPay. We'll check for "successful" to verify screen.
 
-        val successNodes = rootNode.findAccessibilityNodeInfosByText("successful")
-        if (successNodes.isNullOrEmpty()) {
-             // Maybe it's capitalized
-             val successNodesCapital = rootNode.findAccessibilityNodeInfosByText("Successful")
-             if (successNodesCapital.isNullOrEmpty()) return null
-        }
+    override fun parse(rootNode: AccessibilityNodeInfo): ParsedTransaction? {
+        // Legacy: extract texts from node tree, then delegate to text-based parser
+        val texts = mutableListOf<String>()
+        extractTexts(rootNode, texts)
+        return parseFromTexts(texts)
+    }
+
+    override fun parseFromTexts(texts: List<String>): ParsedTransaction? {
+        // Verify this is a success screen
+        val hasSuccess = texts.any { it.contains("successful", ignoreCase = true) }
+        if (!hasSuccess) return null
 
         // Find amount
-        val amountNodes = rootNode.findAccessibilityNodeInfosByText("₹")
-        if (amountNodes.isNullOrEmpty()) return null
-
         var amount: Double? = null
-        for (node in amountNodes) {
-            val text = node.text?.toString() ?: continue
+        for (text in texts) {
+            if (!text.contains("₹")) continue
             val match = Regex("""₹\s*([0-9,.]+)""").find(text)
             if (match != null) {
                 amount = match.groupValues[1].replace(",", "").toDoubleOrNull()
@@ -31,12 +30,24 @@ class PhonePeParser : AppParser {
 
         // Find Merchant
         var merchantName = "Unknown"
-        val paidToNodes = rootNode.findAccessibilityNodeInfosByText("Paid to")
-        if (!paidToNodes.isNullOrEmpty()) {
-            val text = paidToNodes[0].text?.toString() ?: ""
-            merchantName = text.replace("Paid to", "").trim()
+        for (text in texts) {
+            if (text.contains("Paid to", ignoreCase = true)) {
+                merchantName = text.replace(Regex("(?i)paid to"), "").trim()
+                if (merchantName.isNotEmpty()) break
+            }
         }
 
         return ParsedTransaction(amount, merchantName, "PhonePe")
+    }
+
+    private fun extractTexts(node: AccessibilityNodeInfo?, out: MutableList<String>) {
+        if (node == null) return
+        val text = node.text?.toString()?.trim()
+        val desc = node.contentDescription?.toString()?.trim()
+        if (!text.isNullOrEmpty()) out.add(text)
+        if (!desc.isNullOrEmpty()) out.add(desc)
+        for (i in 0 until node.childCount) {
+            extractTexts(node.getChild(i), out)
+        }
     }
 }

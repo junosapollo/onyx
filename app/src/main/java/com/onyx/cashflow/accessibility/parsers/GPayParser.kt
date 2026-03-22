@@ -3,59 +3,56 @@ package com.onyx.cashflow.accessibility.parsers
 import android.view.accessibility.AccessibilityNodeInfo
 
 class GPayParser : AppParser {
-    override fun parse(rootNode: AccessibilityNodeInfo): ParsedTransaction? {
-        // Find text nodes containing "₹"
-        val amountNodes = rootNode.findAccessibilityNodeInfosByText("₹")
-        if (amountNodes.isNullOrEmpty()) return null
 
+    override fun parse(rootNode: AccessibilityNodeInfo): ParsedTransaction? {
+        // Legacy: extract texts from node tree, then delegate to text-based parser
+        val texts = mutableListOf<String>()
+        extractTexts(rootNode, texts)
+        return parseFromTexts(texts)
+    }
+
+    override fun parseFromTexts(texts: List<String>): ParsedTransaction? {
+        // Find amount from text containing "₹"
         var amount: Double? = null
-        for (node in amountNodes) {
-            val text = node.text?.toString() ?: continue
-            // Extract numbers from "₹500.00"
+        for (text in texts) {
+            if (!text.contains("₹")) continue
             val match = Regex("""₹\s*([0-9,.]+)""").find(text)
             if (match != null) {
                 amount = match.groupValues[1].replace(",", "").toDoubleOrNull()
                 if (amount != null) break
             }
         }
-
         if (amount == null) return null
 
-        // Try to find the recipient "Paid to ___"
+        // Try to find "Paid to ___"
         var merchantName = "Unknown"
-        val paidToNodes = rootNode.findAccessibilityNodeInfosByText("Paid to")
-        if (!paidToNodes.isNullOrEmpty()) {
-            val text = paidToNodes[0].text?.toString() ?: ""
-            merchantName = text.replace("Paid to", "").trim()
-        } else {
-            val allTexts = mutableListOf<String>()
-            fun traverse(node: AccessibilityNodeInfo?) {
-                if (node == null) return
-                val text = node.text?.toString()?.trim()
-                val desc = node.contentDescription?.toString()?.trim()
-                val viewId = node.viewIdResourceName ?: "no_id"
-
-                if (!text.isNullOrEmpty()) {
-                    android.util.Log.d("GPayParserTree", "Text Node: '$text', ViewID: $viewId")
-                    allTexts.add(text)
-                }
-                if (!desc.isNullOrEmpty()) {
-                    android.util.Log.d("GPayParserTree", "Desc Node: '$desc', ViewID: $viewId")
-                    allTexts.add(desc)
-                }
-                
-                for (i in 0 until node.childCount) {
-                    traverse(node.getChild(i))
-                }
+        for (text in texts) {
+            if (text.contains("Paid to", ignoreCase = true)) {
+                merchantName = text.replace(Regex("(?i)paid to"), "").trim()
+                if (merchantName.isNotEmpty()) break
             }
-            traverse(rootNode)
-            
-            val ignoreList = setOf("completed", "processing", "success", "successful", "view details", "done", "share", "checking balance", "rupees", "bank", "account", "secure connection", "powered by upi", "payment started", "payment processing", "got it", "logo", "profile", "avatar", "image", "close")
+        }
+
+        // Fallback: find first meaningful text
+        if (merchantName == "Unknown") {
+            val ignoreList = setOf(
+                "completed", "processing", "success", "successful",
+                "view details", "done", "share", "checking balance",
+                "rupees", "bank", "account", "secure connection",
+                "powered by upi", "payment started", "payment processing",
+                "got it", "logo", "profile", "avatar", "image", "close",
+                // Common UI buttons that might slip through
+                "back", "report user", "report", "home", "more options",
+                "more", "help", "settings", "cancel", "ok", "yes", "no",
+                "retry", "new payment", "go to home", "send again",
+                "check balance", "split", "request", "pay", "scan",
+                "navigate up", "open navigation drawer"
+            )
             val amountPattern = Regex("""^[0-9,.]+$""")
             val timePattern = Regex("""^\d{1,2}:\d{2}\s*(AM|PM|am|pm)?$""")
             val datePattern = Regex("""^\d{1,2}\s+[a-zA-Z]{3}.*""")
 
-            for (text in allTexts) {
+            for (text in texts) {
                 val lower = text.lowercase()
                 if (ignoreList.contains(lower)) continue
                 if (lower.contains("₹")) continue
@@ -70,17 +67,23 @@ class GPayParser : AppParser {
                 if (lower.contains("ending in")) continue
                 if (lower.contains("card")) continue
                 if (lower.length < 2) continue
-                
+
                 merchantName = text
                 break
             }
         }
 
-        // We only consider it a valid transaction if we found an amount and some confirmation of success.
-        // GPay uses words like "Processing" or "Completed".
-        // A simple check is just ensuring it's not a generic screen.
-        // We'll trust the caller to verify the package name.
-
         return ParsedTransaction(amount, merchantName, "Google Pay")
+    }
+
+    private fun extractTexts(node: AccessibilityNodeInfo?, out: MutableList<String>) {
+        if (node == null) return
+        val text = node.text?.toString()?.trim()
+        val desc = node.contentDescription?.toString()?.trim()
+        if (!text.isNullOrEmpty()) out.add(text)
+        if (!desc.isNullOrEmpty()) out.add(desc)
+        for (i in 0 until node.childCount) {
+            extractTexts(node.getChild(i), out)
+        }
     }
 }
