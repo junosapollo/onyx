@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!--
+        Matches context.filesDir/logs/
+        The FileProvider uses this to build a content:// URI for the log file
+        so it can be safely shared with external apps via the Share Sheet.
+    -->
+    <files-path name="onyx_logs" path="logs/" />
+</paths>

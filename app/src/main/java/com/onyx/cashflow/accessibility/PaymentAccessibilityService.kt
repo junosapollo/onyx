@@ -3,7 +3,6 @@ package com.onyx.cashflow.accessibility
 import android.accessibilityservice.AccessibilityService
 import android.os.Handler
 import android.os.HandlerThread
-import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import com.onyx.cashflow.accessibility.parsers.AppParser
@@ -14,8 +13,11 @@ import com.onyx.cashflow.data.AppDatabase
 import com.onyx.cashflow.data.MerchantNormalizer
 import com.onyx.cashflow.data.Transaction
 import com.onyx.cashflow.data.TransactionType
+import com.onyx.cashflow.utils.OnyxLogger
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+
+private const val TAG = "AccessibilitySvc"
 
 class PaymentAccessibilityService : AccessibilityService() {
 
@@ -29,10 +31,12 @@ class PaymentAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        Log.d("PaymentAccessibility", "Service Connected")
+        OnyxLogger.i(TAG, "Service connected — registering parsers")
 
         parsers["com.google.android.apps.nbu.paisa.user"] = GPayParser()
         parsers["com.phonepe.app"] = PhonePeParser()
+
+        OnyxLogger.i(TAG, "Listening for packages: ${parsers.keys.joinToString()}")
 
         // Start dedicated background thread
         workerThread = HandlerThread("PaymentParserThread").apply { start() }
@@ -44,31 +48,52 @@ class PaymentAccessibilityService : AccessibilityService() {
 
         // Filter by package name first — fast, no allocations
         val packageName = event.packageName?.toString() ?: return
-        val parser = parsers[packageName] ?: return
+        val parser = parsers[packageName]
+        if (parser == null) {
+            // Not a package we care about — silent drop (very frequent, don't log to file)
+            return
+        }
+
+        OnyxLogger.d(TAG, "Event received from $packageName — type=${event.eventType}")
 
         // Code-level debounce: 2 seconds
         val now = System.currentTimeMillis()
-        if (now - lastProcessTime < 2000L) return
+        val elapsed = now - lastProcessTime
+        if (elapsed < 2000L) {
+            OnyxLogger.d(TAG, "Debounce DROP: only ${elapsed}ms since last event (threshold=2000ms)")
+            return
+        }
         lastProcessTime = now
 
         // ── MAIN THREAD: fast text extraction ──
-        // Extract all text strings from the node tree into a plain list.
-        // This is just string copies — microseconds, no regex or DB.
-        val rootNode = rootInActiveWindow ?: return
+        val rootNode = rootInActiveWindow
+        if (rootNode == null) {
+            OnyxLogger.e(TAG, "rootInActiveWindow is null — window may have closed before extraction")
+            return
+        }
+
         val textSnapshot = mutableListOf<String>()
         extractTexts(rootNode, textSnapshot)
 
-        if (textSnapshot.isEmpty()) return
+        if (textSnapshot.isEmpty()) {
+            OnyxLogger.d(TAG, "Text snapshot is empty — no parseable content found in window")
+            return
+        }
+
+        OnyxLogger.d(TAG, "Text snapshot (${textSnapshot.size} strings) captured. Dispatching to worker thread.")
 
         // ── BACKGROUND THREAD: all heavy work ──
         workerHandler.post {
             try {
                 val parsedTx = parser.parseFromTexts(textSnapshot)
                 if (parsedTx != null) {
-                    saveTransaction(parsedTx)
+                    OnyxLogger.i(TAG, "Parser MATCH: amount=${parsedTx.amount}, merchant='${parsedTx.merchantName}', app=${parsedTx.appName}")
+                    saveTransaction(parsedTx, textSnapshot)
+                } else {
+                    OnyxLogger.d(TAG, "Parser MISS — no transaction found in snapshot. Snapshot: $textSnapshot")
                 }
             } catch (e: Exception) {
-                Log.e("PaymentAccessibility", "Error parsing", e)
+                OnyxLogger.e(TAG, "Exception during parsing", e)
             }
         }
     }
@@ -100,23 +125,29 @@ class PaymentAccessibilityService : AccessibilityService() {
                 extractTexts(node.getChild(i), out)
             }
         } catch (e: Exception) {
-            // Node may have been recycled mid-traversal — safe to ignore
+            // Node may have been recycled mid-traversal — common at screen transitions
+            OnyxLogger.d(TAG, "Node recycled during traversal (depth=${out.size}): ${e.message}")
         }
     }
 
     /**
      * Saves a parsed transaction to the database.
      * Called on the worker thread — safe to do DB I/O here.
+     *
+     * [rawSnapshot] is logged for debugging parse discrepancies.
+     * Only amounts are logged at INFO level; full snapshot is DEBUG only.
      */
-    private fun saveTransaction(parsedTx: ParsedTransaction) {
-        // Dedup by amount + minute only — no merchant name, since the same screen
-        // should never produce two legitimate transactions in the same minute
+    private fun saveTransaction(parsedTx: ParsedTransaction, rawSnapshot: List<String>) {
+        // In-memory dedup by amount + minute
         val sig = "${parsedTx.amount}-${System.currentTimeMillis() / 60000}"
-
-        if (sig == lastSavedSignature) return
+        if (sig == lastSavedSignature) {
+            OnyxLogger.d(TAG, "In-memory dedup HIT for sig=$sig — skipping DB query")
+            return
+        }
         lastSavedSignature = sig
 
-        Log.d("PaymentAccessibility", "Parsed Transaction: $parsedTx")
+        OnyxLogger.i(TAG, "Processing transaction: amount=${parsedTx.amount}, app=${parsedTx.appName}")
+        OnyxLogger.d(TAG, "Raw snapshot used for parse: $rawSnapshot")
 
         runBlocking {
             val dao = AppDatabase.getInstance(applicationContext).transactionDao()
@@ -124,6 +155,8 @@ class PaymentAccessibilityService : AccessibilityService() {
             val twoMinsAgo = System.currentTimeMillis() - (2 * 60 * 1000)
             val duplicates = dao.findRecentDuplicates(parsedTx.amount, TransactionType.EXPENSE, twoMinsAgo)
             val newNote = "${parsedTx.merchantName} (via ${parsedTx.appName})"
+
+            OnyxLogger.d(TAG, "DB dedup check: ${duplicates.size} candidate(s) in last 2 mins")
 
             var isTrueDuplicate = false
             for (duplicate in duplicates) {
@@ -136,11 +169,12 @@ class PaymentAccessibilityService : AccessibilityService() {
 
                     isTrueDuplicate = true
 
-                    if (duplicate.note.contains("Unknown", ignoreCase = true) && !parsedTx.merchantName.contains("Unknown", ignoreCase = true)) {
+                    if (duplicate.note.contains("Unknown", ignoreCase = true) &&
+                        !parsedTx.merchantName.contains("Unknown", ignoreCase = true)) {
                         dao.update(duplicate.copy(note = newNote))
-                        Log.d("PaymentAccessibility", "Updated duplicate with better merchant name")
+                        OnyxLogger.i(TAG, "Duplicate UPDATED with better merchant: '$existingMerchant' → '${parsedTx.merchantName}'")
                     } else {
-                        Log.d("PaymentAccessibility", "Skipped duplicate transaction")
+                        OnyxLogger.i(TAG, "True duplicate SKIPPED: existing='$existingMerchant', incoming='$incomingMerchant'")
                     }
                     break
                 }
@@ -148,13 +182,15 @@ class PaymentAccessibilityService : AccessibilityService() {
 
             if (isTrueDuplicate) return@runBlocking
 
-            // Look up category rule using normalized key
+            // Category lookup
             val db = AppDatabase.getInstance(applicationContext)
             val normalizedKey = MerchantNormalizer.normalizeKey(parsedTx.merchantName.trim())
             val rule = db.merchantCategoryRuleDao().getRuleForNormalizedKey(normalizedKey)
             val categoryId = if (rule != null) {
+                OnyxLogger.d(TAG, "Category rule HIT: key='$normalizedKey' → categoryId=${rule.categoryId}")
                 rule.categoryId
             } else {
+                OnyxLogger.d(TAG, "Category rule MISS for key='$normalizedKey' — falling back to 'Other'")
                 val cats = db.categoryDao().getAll().first()
                 cats.find { it.name.equals("Other", ignoreCase = true) }?.id
             }
@@ -167,18 +203,19 @@ class PaymentAccessibilityService : AccessibilityService() {
                 type = TransactionType.EXPENSE
             )
             dao.insert(transaction)
-            Log.d("PaymentAccessibility", "Saved transaction to DB")
+            OnyxLogger.i(TAG, "Transaction SAVED: amount=${parsedTx.amount}, note='$newNote', categoryId=$categoryId")
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        OnyxLogger.i(TAG, "Service destroyed — shutting down worker thread")
         if (::workerThread.isInitialized) {
             workerThread.quitSafely()
         }
     }
 
     override fun onInterrupt() {
-        Log.e("PaymentAccessibility", "Service Interrupted")
+        OnyxLogger.e(TAG, "Service INTERRUPTED by system")
     }
 }
