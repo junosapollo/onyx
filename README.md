@@ -1,4 +1,4 @@
-# Onyx
+# onyx
 
 **Automated, Privacy-Centric Expense Tracking**
 
