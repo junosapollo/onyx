@@ -1,30 +1,26 @@
 [
     {
-        "merged": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-debug-59:/drawable_ic_launcher_background.xml.flat",
-        "source": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-main-61:/drawable/ic_launcher_background.xml"
+        "merged": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-debug-62:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-main-64:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
-        "merged": "com.onyx.cashflow.app-debug-59:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.onyx.cashflow.app-main-61:/drawable/ic_launcher_foreground.xml"
+        "merged": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-debug-62:/xml_accessibility_service_config.xml.flat",
+        "source": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-main-64:/xml/accessibility_service_config.xml"
     },
     {
-        "merged": "com.onyx.cashflow.app-debug-59:/drawable_ic_launcher_background.xml.flat",
-        "source": "com.onyx.cashflow.app-main-61:/drawable/ic_launcher_background.xml"
+        "merged": "com.onyx.cashflow.app-debug-62:/xml_accessibility_service_config.xml.flat",
+        "source": "com.onyx.cashflow.app-main-64:/xml/accessibility_service_config.xml"
     },
     {
-        "merged": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-debug-59:/drawable_ic_launcher.png.flat",
-        "source": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-main-61:/drawable/ic_launcher.png"
+        "merged": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-debug-62:/drawable_ic_launcher_background.xml.flat",
+        "source": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-main-64:/drawable/ic_launcher_background.xml"
     },
     {
-        "merged": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-debug-59:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-main-61:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-debug-62:/drawable_ic_launcher.png.flat",
+        "source": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-main-64:/drawable/ic_launcher.png"
     },
     {
-        "merged": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-debug-59:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-main-61:/drawable/ic_launcher_foreground.xml"
-    },
-    {
-        "merged": "com.onyx.cashflow.app-debug-59:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "com.onyx.cashflow.app-main-61:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-debug-62:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "/home/mxnxsh/.gradle/daemon/8.11.1/com.onyx.cashflow.app-main-64:/drawable/ic_launcher_foreground.xml"
     }
 ]

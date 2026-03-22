@@ -7,5 +7,7 @@ drawable ic_launcher
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 mipmap ic_launcher
+string accessibility_service_description
 string app_name
 style Theme.CashFlow
+xml accessibility_service_config

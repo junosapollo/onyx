@@ -5,7 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/CashFlow.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/CashFlow.app.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/CashFlow.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/CashFlow.app.androidTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/CashFlow.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/CashFlow.app.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/CashFlow.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/CashFlow.app.unitTest.iml" />
     </modules>
   </component>
 </project>
