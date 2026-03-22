@@ -195,6 +195,7 @@ layout notification_template_icon_group
 layout notification_template_part_chronometer
 layout notification_template_part_time
 mipmap ic_launcher
+string accessibility_service_description
 string androidx_startup
 string app_name
 string call_notification_answer_action
@@ -309,3 +310,4 @@ styleable NavGraphNavigator startDestination
 styleable NavHost navGraph
 styleable NavInclude graph
 styleable Navigator android_label android_id route
+xml accessibility_service_config

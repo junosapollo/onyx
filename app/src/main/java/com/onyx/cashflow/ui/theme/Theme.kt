@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-// ── Rounded Dark Gray Palette ────────────────────────────────────────────────
+// Rounded Dark Gray Palette
 private val Background   = Color(0xFF0D0D0D) // Very dark gray, almost black
 private val Surface      = Color(0xFF1A1A1A) // Slightly lighter for cards
 private val SurfaceVar   = Color(0xFF222222) // Lighter still for nested elements
@@ -43,7 +43,7 @@ private val RoundedDarkColorScheme = darkColorScheme(
     inverseOnSurface    = Background,
 )
 
-// ── Rounded Geometry ─────────────────────────────────────────────────────────
+// Rounded Geometry
 private val RoundedShapes = Shapes(
     extraSmall = RoundedCornerShape(4.dp),
     small      = RoundedCornerShape(8.dp),

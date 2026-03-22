@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">onyx</string>
+    <string name="accessibility_service_description">Reads payment screens to auto-log transactions to Onyx.</string>
 </resources>

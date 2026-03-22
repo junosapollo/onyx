@@ -1,6 +1,7 @@
 package com.onyx.cashflow.data;
 
 import android.database.Cursor;
+import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.CoroutinesRoom;
@@ -457,6 +458,113 @@ public final class TransactionDao_Impl implements TransactionDao {
         _statement.release();
       }
     });
+  }
+
+  @Override
+  public Object findRecentDuplicates(final double amount, final TransactionType type,
+      final long since, final Continuation<? super List<Transaction>> $completion) {
+    final String _sql = "\n"
+            + "        SELECT * FROM transactions\n"
+            + "        WHERE amount = ? AND type = ? AND date >= ?\n"
+            + "        ORDER BY date DESC\n"
+            + "    ";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 3);
+    int _argIndex = 1;
+    _statement.bindDouble(_argIndex, amount);
+    _argIndex = 2;
+    _statement.bindString(_argIndex, __TransactionType_enumToString(type));
+    _argIndex = 3;
+    _statement.bindLong(_argIndex, since);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<Transaction>>() {
+      @Override
+      @NonNull
+      public List<Transaction> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfAmount = CursorUtil.getColumnIndexOrThrow(_cursor, "amount");
+          final int _cursorIndexOfCategoryId = CursorUtil.getColumnIndexOrThrow(_cursor, "categoryId");
+          final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
+          final int _cursorIndexOfDate = CursorUtil.getColumnIndexOrThrow(_cursor, "date");
+          final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
+          final List<Transaction> _result = new ArrayList<Transaction>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final Transaction _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final double _tmpAmount;
+            _tmpAmount = _cursor.getDouble(_cursorIndexOfAmount);
+            final Long _tmpCategoryId;
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+            }
+            final String _tmpNote;
+            _tmpNote = _cursor.getString(_cursorIndexOfNote);
+            final long _tmpDate;
+            _tmpDate = _cursor.getLong(_cursorIndexOfDate);
+            final TransactionType _tmpType;
+            _tmpType = __TransactionType_stringToEnum(_cursor.getString(_cursorIndexOfType));
+            _item = new Transaction(_tmpId,_tmpAmount,_tmpCategoryId,_tmpNote,_tmpDate,_tmpType);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
+  @Override
+  public Object getAllTransactions(final Continuation<? super List<Transaction>> $completion) {
+    final String _sql = "SELECT * FROM transactions";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<Transaction>>() {
+      @Override
+      @NonNull
+      public List<Transaction> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfAmount = CursorUtil.getColumnIndexOrThrow(_cursor, "amount");
+          final int _cursorIndexOfCategoryId = CursorUtil.getColumnIndexOrThrow(_cursor, "categoryId");
+          final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
+          final int _cursorIndexOfDate = CursorUtil.getColumnIndexOrThrow(_cursor, "date");
+          final int _cursorIndexOfType = CursorUtil.getColumnIndexOrThrow(_cursor, "type");
+          final List<Transaction> _result = new ArrayList<Transaction>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final Transaction _item;
+            final long _tmpId;
+            _tmpId = _cursor.getLong(_cursorIndexOfId);
+            final double _tmpAmount;
+            _tmpAmount = _cursor.getDouble(_cursorIndexOfAmount);
+            final Long _tmpCategoryId;
+            if (_cursor.isNull(_cursorIndexOfCategoryId)) {
+              _tmpCategoryId = null;
+            } else {
+              _tmpCategoryId = _cursor.getLong(_cursorIndexOfCategoryId);
+            }
+            final String _tmpNote;
+            _tmpNote = _cursor.getString(_cursorIndexOfNote);
+            final long _tmpDate;
+            _tmpDate = _cursor.getLong(_cursorIndexOfDate);
+            final TransactionType _tmpType;
+            _tmpType = __TransactionType_stringToEnum(_cursor.getString(_cursorIndexOfType));
+            _item = new Transaction(_tmpId,_tmpAmount,_tmpCategoryId,_tmpNote,_tmpDate,_tmpType);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
   }
 
   @NonNull

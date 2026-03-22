@@ -61,4 +61,14 @@ interface TransactionDao {
         WHERE type = 'INCOME' AND date BETWEEN :startDate AND :endDate
     """)
     fun getTotalIncome(startDate: Long, endDate: Long): Flow<Double?>
+
+    @Query("""
+        SELECT * FROM transactions
+        WHERE amount = :amount AND type = :type AND date >= :since
+        ORDER BY date DESC
+    """)
+    suspend fun findRecentDuplicates(amount: Double, type: TransactionType, since: Long): List<Transaction>
+
+    @Query("SELECT * FROM transactions")
+    suspend fun getAllTransactions(): List<Transaction>
 }

@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
         BalanceGap::class,
         MerchantCategoryRule::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -96,6 +96,20 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Recreate merchant_category_rules with normalizedKey as PK
+                db.execSQL("DROP TABLE IF EXISTS merchant_category_rules")
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS merchant_category_rules (
+                        normalizedKey TEXT NOT NULL PRIMARY KEY,
+                        merchant TEXT NOT NULL DEFAULT '',
+                        categoryId INTEGER NOT NULL
+                    )
+                """)
+            }
+        }
+
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: buildDatabase(context).also { INSTANCE = it }
@@ -108,7 +122,7 @@ abstract class AppDatabase : RoomDatabase() {
                 AppDatabase::class.java,
                 "cashflow.db"
             )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .fallbackToDestructiveMigration()
                 .fallbackToDestructiveMigrationOnDowngrade()
                 .addCallback(SeedCallback())

@@ -5,13 +5,16 @@ import android.content.Context
 import android.content.Intent
 import android.provider.Telephony
 import com.onyx.cashflow.data.AppDatabase
+import com.onyx.cashflow.data.MerchantNormalizer
 import com.onyx.cashflow.data.PendingTransaction
+import com.onyx.cashflow.data.SettingsDataStore
 import com.onyx.cashflow.data.Transaction
 import com.onyx.cashflow.data.TransactionType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class SmsBroadcastReceiver : BroadcastReceiver() {
 
@@ -98,6 +101,11 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) return
 
+        // Check if SMS alerts are enabled
+        val settingsDataStore = SettingsDataStore(context)
+        val smsEnabled = runBlocking { settingsDataStore.smsAlertsEnabled.first() }
+        if (!smsEnabled) return
+
         val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
         if (messages.isNullOrEmpty()) return
 
@@ -122,7 +130,8 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
 
                 if (isTrusted) {
                     // Check for existing merchant category rule
-                    val rule = db.merchantCategoryRuleDao().getRuleForMerchant(parsed.merchant.trim())
+                    val normalizedKey = MerchantNormalizer.normalizeKey(parsed.merchant.trim())
+                    val rule = db.merchantCategoryRuleDao().getRuleForNormalizedKey(normalizedKey)
                     
                     val categoryIdToAssign = if (rule != null) {
                         rule.categoryId
@@ -132,15 +141,38 @@ class SmsBroadcastReceiver : BroadcastReceiver() {
                         cats.find { it.name.equals("Other", ignoreCase = true) }?.id
                     }
 
-                    db.transactionDao().insert(
-                        Transaction(
-                            amount = parsed.amount,
-                            categoryId = categoryIdToAssign,
-                            note = parsed.merchant,
-                            date = System.currentTimeMillis(),
-                            type = parsed.type
+                    val twoMinsAgo = System.currentTimeMillis() - (2 * 60 * 1000)
+                    val duplicates = db.transactionDao().findRecentDuplicates(parsed.amount, parsed.type, twoMinsAgo)
+                    
+                    var isTrueDuplicate = false
+                    for (duplicate in duplicates) {
+                        val existingMerchant = duplicate.note.replace(Regex("""\s*\(via .*\)$"""), "").trim()
+                        val incomingMerchant = parsed.merchant.trim()
+
+                        if (existingMerchant.equals(incomingMerchant, ignoreCase = true) || 
+                            existingMerchant.contains("Unknown", ignoreCase = true) || 
+                            incomingMerchant.contains("Unknown", ignoreCase = true)) {
+                            
+                            isTrueDuplicate = true
+
+                            if (duplicate.note.contains("Unknown", ignoreCase = true) && !parsed.merchant.contains("Unknown", ignoreCase = true)) {
+                                db.transactionDao().update(duplicate.copy(note = parsed.merchant, categoryId = categoryIdToAssign))
+                            }
+                            break
+                        }
+                    }
+
+                    if (!isTrueDuplicate) {
+                        db.transactionDao().insert(
+                            Transaction(
+                                amount = parsed.amount,
+                                categoryId = categoryIdToAssign,
+                                note = parsed.merchant,
+                                date = System.currentTimeMillis(),
+                                type = parsed.type
+                            )
                         )
-                    )
+                    }
 
                     // Check for balance gaps (missed transactions)
                     BalanceGapDetector.checkForGap(parsed, sender, db)

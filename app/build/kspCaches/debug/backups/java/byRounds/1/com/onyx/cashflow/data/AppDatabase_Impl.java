@@ -44,7 +44,7 @@ public final class AppDatabase_Impl extends AppDatabase {
   @Override
   @NonNull
   protected SupportSQLiteOpenHelper createOpenHelper(@NonNull final DatabaseConfiguration config) {
-    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(4) {
+    final SupportSQLiteOpenHelper.Callback _openCallback = new RoomOpenHelper(config, new RoomOpenHelper.Delegate(5) {
       @Override
       public void createAllTables(@NonNull final SupportSQLiteDatabase db) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `categoryId` INTEGER, `note` TEXT NOT NULL, `date` INTEGER NOT NULL, `type` TEXT NOT NULL, FOREIGN KEY(`categoryId`) REFERENCES `categories`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )");
@@ -56,9 +56,9 @@ public final class AppDatabase_Impl extends AppDatabase {
         db.execSQL("CREATE TABLE IF NOT EXISTS `pending_transactions` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `amount` REAL NOT NULL, `merchant` TEXT NOT NULL, `senderAddress` TEXT NOT NULL, `rawSms` TEXT NOT NULL, `date` INTEGER NOT NULL, `type` TEXT NOT NULL)");
         db.execSQL("CREATE TABLE IF NOT EXISTS `account_balances` (`accountId` TEXT NOT NULL, `lastBalance` REAL NOT NULL, `lastTransactionDate` INTEGER NOT NULL, `bankSender` TEXT NOT NULL, PRIMARY KEY(`accountId`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS `balance_gaps` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `accountId` TEXT NOT NULL, `expectedBalance` REAL NOT NULL, `actualBalance` REAL NOT NULL, `gapAmount` REAL NOT NULL, `gapType` TEXT NOT NULL, `detectedAt` INTEGER NOT NULL, `resolved` INTEGER NOT NULL)");
-        db.execSQL("CREATE TABLE IF NOT EXISTS `merchant_category_rules` (`merchant` TEXT NOT NULL, `categoryId` INTEGER NOT NULL, PRIMARY KEY(`merchant`))");
+        db.execSQL("CREATE TABLE IF NOT EXISTS `merchant_category_rules` (`normalizedKey` TEXT NOT NULL, `merchant` TEXT NOT NULL, `categoryId` INTEGER NOT NULL, PRIMARY KEY(`normalizedKey`))");
         db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fe2704cc0584c06af4def7e22b5dc184')");
+        db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '99945aaf831ade9609b9f32e087e8d90')");
       }
 
       @Override
@@ -210,8 +210,9 @@ public final class AppDatabase_Impl extends AppDatabase {
                   + " Expected:\n" + _infoBalanceGaps + "\n"
                   + " Found:\n" + _existingBalanceGaps);
         }
-        final HashMap<String, TableInfo.Column> _columnsMerchantCategoryRules = new HashMap<String, TableInfo.Column>(2);
-        _columnsMerchantCategoryRules.put("merchant", new TableInfo.Column("merchant", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        final HashMap<String, TableInfo.Column> _columnsMerchantCategoryRules = new HashMap<String, TableInfo.Column>(3);
+        _columnsMerchantCategoryRules.put("normalizedKey", new TableInfo.Column("normalizedKey", "TEXT", true, 1, null, TableInfo.CREATED_FROM_ENTITY));
+        _columnsMerchantCategoryRules.put("merchant", new TableInfo.Column("merchant", "TEXT", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         _columnsMerchantCategoryRules.put("categoryId", new TableInfo.Column("categoryId", "INTEGER", true, 0, null, TableInfo.CREATED_FROM_ENTITY));
         final HashSet<TableInfo.ForeignKey> _foreignKeysMerchantCategoryRules = new HashSet<TableInfo.ForeignKey>(0);
         final HashSet<TableInfo.Index> _indicesMerchantCategoryRules = new HashSet<TableInfo.Index>(0);
@@ -224,7 +225,7 @@ public final class AppDatabase_Impl extends AppDatabase {
         }
         return new RoomOpenHelper.ValidationResult(true, null);
       }
-    }, "fe2704cc0584c06af4def7e22b5dc184", "2e380bd6e07c7a3e8fecc979acc416b6");
+    }, "99945aaf831ade9609b9f32e087e8d90", "e83dd96e3fd5aaf4ca26851e82770e86");
     final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build();
     final SupportSQLiteOpenHelper _helper = config.sqliteOpenHelperFactory.create(_sqliteConfig);
     return _helper;

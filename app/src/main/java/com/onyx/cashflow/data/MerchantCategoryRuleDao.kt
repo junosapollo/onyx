@@ -11,12 +11,12 @@ interface MerchantCategoryRuleDao {
     @Query("SELECT * FROM merchant_category_rules")
     suspend fun getAllRules(): List<MerchantCategoryRule>
 
-    @Query("SELECT * FROM merchant_category_rules WHERE merchant = :merchant LIMIT 1")
-    suspend fun getRuleForMerchant(merchant: String): MerchantCategoryRule?
+    @Query("SELECT * FROM merchant_category_rules WHERE normalizedKey = :normalizedKey LIMIT 1")
+    suspend fun getRuleForNormalizedKey(normalizedKey: String): MerchantCategoryRule?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRule(rule: MerchantCategoryRule)
 
-    @Query("DELETE FROM merchant_category_rules WHERE merchant = :merchant")
-    suspend fun deleteRule(merchant: String)
+    @Query("DELETE FROM merchant_category_rules WHERE normalizedKey = :normalizedKey")
+    suspend fun deleteRule(normalizedKey: String)
 }

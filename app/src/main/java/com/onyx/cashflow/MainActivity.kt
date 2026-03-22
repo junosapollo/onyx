@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Dashboard
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Sms
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,11 +39,13 @@ import com.onyx.cashflow.ui.screens.AddTransactionScreen
 import com.onyx.cashflow.ui.screens.CategoriesScreen
 import com.onyx.cashflow.ui.screens.DashboardScreen
 import com.onyx.cashflow.ui.screens.PendingScreen
+import com.onyx.cashflow.ui.screens.SettingsScreen
 import com.onyx.cashflow.ui.theme.CashFlowTheme
 import com.onyx.cashflow.viewmodel.CategoryViewModel
 import com.onyx.cashflow.viewmodel.DashboardViewModel
 import com.onyx.cashflow.viewmodel.BalanceGapViewModel
 import com.onyx.cashflow.viewmodel.PendingViewModel
+import com.onyx.cashflow.viewmodel.SettingsViewModel
 import com.onyx.cashflow.viewmodel.TransactionViewModel
 
 sealed class Screen(val route: String) {
@@ -49,6 +53,7 @@ sealed class Screen(val route: String) {
     data object Categories : Screen("categories")
     data object Pending : Screen("pending")
     data object AddTransaction : Screen("add_transaction")
+    data object Settings : Screen("settings")
 }
 
 data class BottomNavItem(
@@ -93,14 +98,20 @@ fun CashFlowApp() {
     val categoryViewModel: CategoryViewModel = viewModel()
     val pendingViewModel: PendingViewModel = viewModel()
     val balanceGapViewModel: BalanceGapViewModel = viewModel()
+    val settingsViewModel: SettingsViewModel = viewModel()
 
     val pendingCount by pendingViewModel.pendingCount.collectAsState()
+    val showEarnedData by settingsViewModel.showEarnedData.collectAsState()
+    val smsAlertsEnabled by settingsViewModel.smsAlertsEnabled.collectAsState()
 
-    val navItems = listOf(
-        BottomNavItem(Screen.Dashboard, "DASH", Icons.Filled.Dashboard, Icons.Outlined.Dashboard),
-        BottomNavItem(Screen.Pending, "PENDING", Icons.Filled.Sms, Icons.Outlined.Sms),
-        BottomNavItem(Screen.Categories, "CATEGORIES", Icons.Filled.Category, Icons.Outlined.Category)
-    )
+    val navItems = buildList {
+        add(BottomNavItem(Screen.Dashboard, "DASH", Icons.Filled.Dashboard, Icons.Outlined.Dashboard))
+        if (smsAlertsEnabled) {
+            add(BottomNavItem(Screen.Pending, "PENDING", Icons.Filled.Sms, Icons.Outlined.Sms))
+        }
+        add(BottomNavItem(Screen.Categories, "CATEGORIES", Icons.Filled.Category, Icons.Outlined.Category))
+        add(BottomNavItem(Screen.Settings, "SETTINGS", Icons.Filled.Settings, Icons.Outlined.Settings))
+    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -108,7 +119,8 @@ fun CashFlowApp() {
     val showBottomBar = currentDestination?.route in listOf(
         Screen.Dashboard.route,
         Screen.Categories.route,
-        Screen.Pending.route
+        Screen.Pending.route,
+        Screen.Settings.route
     )
 
     Scaffold(
@@ -197,7 +209,8 @@ fun CashFlowApp() {
                     onAddTransaction = {
                         transactionViewModel.resetForm()
                         navController.navigate(Screen.AddTransaction.route)
-                    }
+                    },
+                    showEarnedData = showEarnedData
                 )
             }
 
@@ -214,6 +227,10 @@ fun CashFlowApp() {
                     viewModel = transactionViewModel,
                     onNavigateBack = { navController.popBackStack() }
                 )
+            }
+
+            composable(Screen.Settings.route) {
+                SettingsScreen(viewModel = settingsViewModel)
             }
         }
     }

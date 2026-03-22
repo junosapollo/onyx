@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.onyx.cashflow.data.BalanceGap
 import com.onyx.cashflow.data.Category
 import com.onyx.cashflow.data.CategoryTotal
+import com.onyx.cashflow.data.MerchantNormalizer
 import com.onyx.cashflow.data.Transaction
 import com.onyx.cashflow.data.TransactionType
 import com.onyx.cashflow.viewmodel.BalanceGapViewModel
@@ -42,7 +43,8 @@ import java.util.*
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     balanceGapViewModel: BalanceGapViewModel,
-    onAddTransaction: () -> Unit
+    onAddTransaction: () -> Unit,
+    showEarnedData: Boolean = true
 ) {
     val selectedMonth by viewModel.selectedMonth.collectAsState()
     val categoryTotals by viewModel.categoryTotals.collectAsState()
@@ -51,7 +53,28 @@ fun DashboardScreen(
     val recentTransactions by viewModel.recentTransactions.collectAsState()
     val categories by viewModel.categories.collectAsState()
     val editingTransaction by viewModel.editingTransaction.collectAsState()
+    val snackbarMessage by viewModel.snackbarMessage.collectAsState()
     val unresolvedGaps by balanceGapViewModel.unresolvedGaps.collectAsState()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(snackbarMessage) {
+        snackbarMessage?.let { msg ->
+            if (msg == "UNDO_DELETE") {
+                val result = snackbarHostState.showSnackbar(
+                    message = "Transaction deleted",
+                    actionLabel = "Undo",
+                    duration = SnackbarDuration.Short
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    viewModel.undoDelete()
+                }
+            } else {
+                snackbarHostState.showSnackbar(msg, duration = SnackbarDuration.Short)
+            }
+            viewModel.clearSnackbar()
+        }
+    }
 
     // State for the resolve-gap dialog
     var resolvingGap by remember { mutableStateOf<BalanceGap?>(null) }
@@ -62,10 +85,13 @@ fun DashboardScreen(
     // Category edit dialog
     editingTransaction?.let { transaction ->
         EditCategoryDialog(
+            transaction = transaction,
             currentCategoryId = transaction.categoryId,
             categories = categories,
             onDismiss = viewModel::dismissEditCategory,
-            onSelectCategory = viewModel::updateTransactionCategory
+            onSelectCategory = { categoryId, applyToAll ->
+                viewModel.updateTransactionCategory(categoryId, applyToAll)
+            }
         )
     }
 
@@ -84,6 +110,7 @@ fun DashboardScreen(
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddTransaction,
@@ -125,49 +152,118 @@ fun DashboardScreen(
                         amount = currencyFormat.format(totalExpenses),
                         color = MaterialTheme.colorScheme.error
                     )
-                    SummaryCard(
-                        modifier = Modifier.weight(1f),
-                        label = "EARNED",
-                        amount = currencyFormat.format(totalIncome),
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    if (showEarnedData) {
+                        SummaryCard(
+                            modifier = Modifier.weight(1f),
+                            label = "EARNED",
+                            amount = currencyFormat.format(totalIncome),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 
-            // Balance card
-            item {
-                val balance = totalIncome - totalExpenses
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(20.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+            // Balance card (only shown when earned data is visible)
+            if (showEarnedData) {
+                item {
+                    val balance = totalIncome - totalExpenses
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(20.dp)
                     ) {
-                        Text(
-                            "BALANCE",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            letterSpacing = 2.sp
-                        )
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                currencyFormat.format(balance),
-                                style = MaterialTheme.typography.headlineSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = if (balance >= 0) MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.error
+                                "BALANCE",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                letterSpacing = 2.sp
                             )
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    currencyFormat.format(balance),
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (balance >= 0) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Accessibility Permission Banner
+            item {
+                val context = androidx.compose.ui.platform.LocalContext.current
+                val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                var isAccessibilityEnabled by remember {
+                    mutableStateOf(
+                        com.onyx.cashflow.accessibility.utils.AccessibilityHelper.isAccessibilitySettingsOn(
+                            context,
+                            com.onyx.cashflow.accessibility.PaymentAccessibilityService::class.java
+                        )
+                    )
+                }
+
+                DisposableEffect(lifecycleOwner) {
+                    val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                        if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                            isAccessibilityEnabled = com.onyx.cashflow.accessibility.utils.AccessibilityHelper.isAccessibilitySettingsOn(
+                                context,
+                                com.onyx.cashflow.accessibility.PaymentAccessibilityService::class.java
+                            )
+                        }
+                    }
+                    lifecycleOwner.lifecycle.addObserver(observer)
+                    onDispose {
+                        lifecycleOwner.lifecycle.removeObserver(observer)
+                    }
+                }
+
+                if (!isAccessibilityEnabled) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .clickable {
+                                val intent = android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                                context.startActivity(intent)
+                            }
+                            .padding(16.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.SettingsAccessibility,
+                                contentDescription = "Enable Accessibility",
+                                tint = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Spacer(Modifier.width(16.dp))
+                            Column {
+                                Text(
+                                    "Enable Auto-Tracking",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                                Text(
+                                    "Allow Onyx to read payment screens to log outgoing transactions.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                                )
+                            }
                         }
                     }
                 }
@@ -295,12 +391,44 @@ fun DashboardScreen(
             } else {
                 items(recentTransactions, key = { it.id }) { transaction ->
                     val category = categories.find { it.id == transaction.categoryId }
-                    TransactionItem(
-                        transaction = transaction,
-                        category = category,
-                        currencyFormat = currencyFormat,
-                        onClick = { viewModel.startEditCategory(transaction) }
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { value ->
+                            if (value == SwipeToDismissBoxValue.EndToStart) {
+                                viewModel.deleteTransaction(transaction)
+                                true
+                            } else {
+                                false
+                            }
+                        }
                     )
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(MaterialTheme.colorScheme.error)
+                                    .padding(horizontal = 20.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = MaterialTheme.colorScheme.onError
+                                )
+                            }
+                        },
+                        enableDismissFromStartToEnd = false
+                    ) {
+                        TransactionItem(
+                            transaction = transaction,
+                            category = category,
+                            currencyFormat = currencyFormat,
+                            onClick = { viewModel.startEditCategory(transaction) }
+                        )
+                    }
                 }
             }
 
@@ -552,111 +680,136 @@ private fun TransactionItem(
 
 @Composable
 private fun EditCategoryDialog(
+    transaction: Transaction,
     currentCategoryId: Long?,
     categories: List<Category>,
     onDismiss: () -> Unit,
-    onSelectCategory: (categoryId: Long, applyToFuture: Boolean, applyToPast: Boolean) -> Unit
+    onSelectCategory: (categoryId: Long, applyToAll: Boolean) -> Unit
 ) {
     var selectedId by remember { mutableStateOf(currentCategoryId) }
-    var applyToFuture by remember { mutableStateOf(false) }
-    var applyToPast by remember { mutableStateOf(false) }
+    val merchantDisplay = MerchantNormalizer.displayName(transaction.note)
+    // Auto-detected transactions have "(via ...)" suffix or UPI handle "@"
+    val isAutoDetected = transaction.note.contains("(via ") || transaction.note.contains("@")
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(
-                "Change Category",
-                letterSpacing = 1.sp
-            )
+            Column {
+                Text(
+                    "Change Category",
+                    letterSpacing = 1.sp
+                )
+                if (merchantDisplay.isNotBlank()) {
+                    Text(
+                        merchantDisplay,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
         },
         text = {
-            Column {
-                LazyColumn(
-                    modifier = Modifier.weight(1f, fill = false),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    items(categories, key = { it.id }) { category ->
-                        val isSelected = category.id == selectedId
-                        val catColor = Color(category.color)
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(categories, key = { it.id }) { category ->
+                    val isSelected = category.id == selectedId
+                    val catColor = Color(category.color)
 
-                        Surface(
-                            onClick = { selectedId = category.id },
-                            shape = RoundedCornerShape(8.dp),
-                            color = if (isSelected) catColor.copy(alpha = 0.15f)
-                            else Color.Transparent
+                    Surface(
+                        onClick = { selectedId = category.id },
+                        shape = RoundedCornerShape(8.dp),
+                        color = if (isSelected) catColor.copy(alpha = 0.15f)
+                        else Color.Transparent
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(
+                            Box(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(16.dp)
-                                        .clip(RoundedCornerShape(4.dp))
-                                        .background(catColor)
+                                    .size(16.dp)
+                                    .clip(RoundedCornerShape(4.dp))
+                                    .background(catColor)
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                category.name,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = if (isSelected) catColor else MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f),
+                                letterSpacing = 0.5.sp
+                            )
+                            if (isSelected) {
+                                Icon(
+                                    Icons.Default.Check,
+                                    contentDescription = "Selected",
+                                    tint = catColor,
+                                    modifier = Modifier.size(20.dp)
                                 )
-                                Spacer(Modifier.width(12.dp))
-                                Text(
-                                    category.name,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (isSelected) catColor else MaterialTheme.colorScheme.onSurface,
-                                    modifier = Modifier.weight(1f),
-                                    letterSpacing = 0.5.sp
-                                )
-                                if (isSelected) {
-                                    Icon(
-                                        Icons.Default.Check,
-                                        contentDescription = "Selected",
-                                        tint = catColor,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
                             }
                         }
                     }
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().clickable { applyToFuture = !applyToFuture }
-                ) {
-                    Checkbox(checked = applyToFuture, onCheckedChange = { applyToFuture = it })
-                    Text("Always apply to future transactions", style = MaterialTheme.typography.bodySmall)
-                }
-                
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().clickable { applyToPast = !applyToPast }
-                ) {
-                    Checkbox(checked = applyToPast, onCheckedChange = { applyToPast = it })
-                    Text("Apply to past transactions", style = MaterialTheme.typography.bodySmall)
                 }
             }
         },
         shape = RoundedCornerShape(16.dp),
         containerColor = MaterialTheme.colorScheme.surface,
         confirmButton = {
-            TextButton(
-                onClick = {
-                    selectedId?.let { id ->
-                        onSelectCategory(id, applyToFuture, applyToPast)
-                    }
-                },
-                enabled = selectedId != null
-            ) {
-                Text("Save")
+            if (isAutoDetected) {
+                // Auto-detected: primary action applies to all matching transactions
+                Button(
+                    onClick = {
+                        selectedId?.let { id ->
+                            onSelectCategory(id, true)
+                        }
+                    },
+                    enabled = selectedId != null,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("For all \"$merchantDisplay\"")
+                }
+            } else {
+                // Manual: simple single Save
+                Button(
+                    onClick = {
+                        selectedId?.let { id ->
+                            onSelectCategory(id, false)
+                        }
+                    },
+                    enabled = selectedId != null,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Save")
+                }
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
+            if (isAutoDetected) {
+                Row {
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
+                    }
+                    TextButton(
+                        onClick = {
+                            selectedId?.let { id ->
+                                onSelectCategory(id, false)
+                            }
+                        },
+                        enabled = selectedId != null
+                    ) {
+                        Text("Just this one")
+                    }
+                }
+            } else {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
             }
         }
     )
