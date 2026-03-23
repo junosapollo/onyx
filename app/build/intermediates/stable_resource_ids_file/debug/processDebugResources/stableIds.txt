@@ -127,6 +127,7 @@ com.onyx.cashflow:id/tag_unhandled_key_event_manager = 0x7f06004d
 com.onyx.cashflow:color/androidx_core_ripple_material_light = 0x7f030000
 com.onyx.cashflow:id/actions = 0x7f060025
 com.onyx.cashflow:id/androidx_compose_ui_view_composition_context = 0x7f060026
+com.onyx.cashflow:xml/file_paths = 0x7f0d0001
 com.onyx.cashflow:string/m3c_date_picker_navigate_to_year_description = 0x7f0a0020
 com.onyx.cashflow:dimen/notification_small_icon_background_padding = 0x7f040011
 com.onyx.cashflow:id/action_text = 0x7f060024

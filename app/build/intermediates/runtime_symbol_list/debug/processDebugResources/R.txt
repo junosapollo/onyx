@@ -379,3 +379,4 @@ int styleable Navigator_android_label 0
 int styleable Navigator_android_id 1
 int styleable Navigator_route 2
 int xml accessibility_service_config 0x7f0d0000
+int xml file_paths 0x7f0d0001
