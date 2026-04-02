@@ -1,13 +1,62 @@
 *.iml
 .gradle
 /local.properties
-/.idea
-.DS_Store
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+/.idea/modules/
+/.idea/inspectionProfiles/
 /build
 /app/build
 /captures
 .externalNativeBuild
 .cxx
+*.bak
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+# Local configuration file (sdk path, etc)
+local.properties
+
+# Log Files
+*.log
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Gradle
+.gradle/
+build/
+
+# Built variants
+/app/build/
+
+# Captures
+/captures/
+
+# External Native Build
+.externalNativeBuild/
+.cxx/
+
+# jni libs
+/app/src/main/jniLibs/
+
+# keystores
+*.keystore
+*.jks
+
+# Google Services
+google-services.json
+
+# Local properties
 local.properties
 
 
