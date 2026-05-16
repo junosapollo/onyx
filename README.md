@@ -2,7 +2,7 @@
 
 **Automated, Privacy-Centric Expense Tracking**
 
-Onyx provides real-time expense tracking by seamlessly capturing transaction data directly from supported payment applications, eliminating the need for manual data entry.
+onyx provides real-time expense tracking by seamlessly capturing transaction data directly from supported payment applications, eliminating the need for manual data entry.
 
 ---
 
